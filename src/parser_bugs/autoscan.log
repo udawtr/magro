@@ -1,0 +1,34 @@
+autoscan: warning: missing AC_CHECK_FUNCS([memset]) wanted by: 
+	lexer_bugs.c:1886
+	lexer_bugs.c:1907
+autoscan: warning: missing AC_CHECK_HEADERS([libintl.h]) wanted by: 
+	parser_bugs.tab.c:236
+autoscan: warning: missing AC_CHECK_HEADERS([malloc.h]) wanted by: 
+	parser_bugs.tab.c:283
+autoscan: warning: missing AC_CHECK_HEADERS([stddef.h]) wanted by: 
+	parser_bugs.tab.c:224
+autoscan: warning: missing AC_FUNC_ALLOCA wanted by: 
+	parser_bugs.tab.c:279
+autoscan: warning: missing AC_FUNC_MALLOC wanted by: 
+	lexer_bugs.c:2191
+	parser_bugs.tab.c:326
+autoscan: warning: missing AC_FUNC_REALLOC wanted by: 
+	lexer_bugs.c:2203
+autoscan: warning: missing AC_TYPE_INT16_T wanted by: 
+	lexer_bugs.c:64
+autoscan: warning: missing AC_TYPE_INT32_T wanted by: 
+	lexer_bugs.c:66
+autoscan: warning: missing AC_TYPE_INT8_T wanted by: 
+	lexer_bugs.c:62
+autoscan: warning: missing AC_TYPE_SIZE_T wanted by: 
+	lexer_bugs.c:176
+	lexer_bugs.c:284
+	lexer_bugs.c:285
+	lexer_bugs.c:389
+	parser_bugs.tab.c:220
+autoscan: warning: missing AC_TYPE_UINT16_T wanted by: 
+	lexer_bugs.c:65
+autoscan: warning: missing AC_TYPE_UINT32_T wanted by: 
+	lexer_bugs.c:67
+autoscan: warning: missing AC_TYPE_UINT8_T wanted by: 
+	lexer_bugs.c:63

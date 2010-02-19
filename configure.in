@@ -1,0 +1,47 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.61)
+AC_INIT(magro, 0.1, udawtr@gmail.com)
+AM_INIT_AUTOMAKE(magro, 0.1, nodefined)
+AC_CONFIG_SRCDIR([src/mainapp/array_node.c])
+AC_CONFIG_HEADER([src/mainapp/config.h])
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
+
+# Checks for libraries.
+#AC_CHECK_LIB([gc], [GC_malloc])
+# FIXME: Replace `main' with a function in `-lneo_cs':
+AC_CHECK_LIB([neo_cs], [main])
+# FIXME: Replace `main' with a function in `-lneo_utl':
+AC_CHECK_LIB([neo_utl], [main])
+
+# Checks for header files.
+AC_HEADER_DIRENT
+AC_HEADER_STDC
+AC_CHECK_HEADERS([float.h limits.h memory.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([gc.h], has_gc_h=1, has_gc_h=0)
+if test $has_gc_h = 0; then
+    AC_MSG_ERROR("FATAL: cannot find gc.h . set CPPFLAGS and retry - stop.");
+fi
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_C_INLINE
+
+# Checks for library functions.
+AC_FUNC_CLOSEDIR_VOID
+AC_CHECK_FUNCS([floor getcwd mkdir pow sqrt isnan])
+
+AC_CONFIG_FILES([
+	Makefile
+	src/Makefile
+	src/mainapp/Makefile
+	src/nmath/Makefile
+	src/parser_rdata/Makefile
+	src/parser_bugs/Makefile
+])
+
+AC_OUTPUT

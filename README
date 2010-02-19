@@ -1,0 +1,10 @@
+This is MAGRO (Most Advanced Gibbs Sampler by R Operation), a program
+of Bayesian interface using R math library and usable by R environment.
+
+The functionality of MAGRO is based on the BUGS program created by the
+MRC Biostaticsitc Unit (http://www.mrc-bsu.cam.ac.uk).
+
+MAGRO is inspired by JAGS program created by Martyn Plummer 
+(http://www-ice.iarc.fr/~martyn/software/jags/) and R project
+(http://www.r-project.org)
+

@@ -1,0 +1,39 @@
+#                                               -*- Autoconf -*-
+# Process this file with autoconf to produce a configure script.
+
+AC_PREREQ(2.61)
+AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
+AM_INIT_AUTOMAKE(NAME, VERSION, no-define)
+AC_CONFIG_SRCDIR([bugs_node.c])
+AC_CONFIG_HEADER([config.h])
+
+# Checks for programs.
+AC_PROG_CC
+AC_PROG_RANLIB
+
+#AM_YFLAGS = -bparser_bugs
+#AM_LFLAGS = -olex.yy.c 
+
+# Checks for libraries.
+# FIXME: Replace `main' with a function in `-lgc':
+AC_CHECK_LIB([gc], [GC_malloc], has_gc=1, has_gc=0)
+if test $has_gc = 0; then
+	AC_MSG_ERROR("FATAL: cannot find library for -lgc.")
+	AC_MSG_ERROR("You'd better check LDFLAGS and retry.");
+fi
+
+# Checks for header files.
+AC_HEADER_STDC
+AC_CHECK_HEADERS([stdlib.h string.h])
+AC_CHECK_HEADERS([gc.h], has_gc_h=1, has_gc_h=0)
+if test $has_gc_h = 0; then
+	AC_MSG_ERROR("FATAL: cannot find gc.h . set CPPFLAGS and retry - stop.");
+fi
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+
+# Checks for library functions.
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
