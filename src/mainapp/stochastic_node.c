@@ -51,8 +51,12 @@ STOCHASTIC_NODE* stochastic_node_create(MODEL* m)
 void stochastic_node_free(STOCHASTIC_NODE* snode)
 {
 	assert( snode != NULL);
-	node_destroy((NODE*)snode);
-	free(snode);
+	snode->node.refcount--;
+	if( snode->node.refcount <= 0 )
+	{
+		node_destroy((NODE*)snode);
+		free(snode);
+	}
 }
 
 double stochastic_node_getvalue(STOCHASTIC_NODE* snode)
@@ -239,12 +243,9 @@ void __stochastic_node_findstochasticdescendant(NODE* node, NODELIST* list, NODE
 	}
 }
 
-NODELIST* stochastic_node_findstochasticdescendant(STOCHASTIC_NODE* snode)
+void stochastic_node_findstochasticdescendant(STOCHASTIC_NODE* snode, NODELIST* list)
 {
-	NODELIST* list;
-	assert( snode != NULL );
-	list = nodelist_create();
+	assert( snode != NULL && list != NULL );
 	__stochastic_node_findstochasticdescendant((NODE*)snode, list, (NODE*)snode);
-	return list;
 }
 

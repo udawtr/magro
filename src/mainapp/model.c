@@ -39,8 +39,16 @@ MODEL* model_create()
 void model_free(MODEL* m)
 {
 	assert(m != NULL && m->relations != NULL && m->samplers != NULL);
-	samplerlist_free(m->samplers);
-	nodedic_free(m->relations);
+	if( m->samplers != NULL )
+	{
+		samplerlist_free(m->samplers);
+		m->samplers = NULL;
+	}
+	if( m->relations != NULL )
+	{
+		nodedic_free(m->relations);
+		m->relations = NULL;
+	}
 	GC_FREE(m);
 }
 

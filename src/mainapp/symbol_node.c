@@ -44,13 +44,17 @@ SYMBOL_NODE* symbol_node_create(MODEL* m)
 void symbol_node_free(SYMBOL_NODE* symbol)
 {
 	assert(symbol != NULL);
-	node_destroy((NODE*)symbol);
-	if( symbol->name != NULL )
+	symbol->node.refcount--;
+	if( symbol->node.refcount <= 0 )
 	{
-		free(symbol->name);
-		symbol->name = NULL;
+		node_destroy((NODE*)symbol);
+		if( symbol->name != NULL )
+		{
+			GC_FREE(symbol->name);
+			symbol->name = NULL;
+		}
+		GC_FREE(symbol);
 	}
-	free(symbol);
 }
 
 int symbol_node_compare(SYMBOL_NODE* s1, SYMBOL_NODE* s2)
@@ -58,10 +62,8 @@ int symbol_node_compare(SYMBOL_NODE* s1, SYMBOL_NODE* s2)
 	int i, n;
 	if( s1 != NULL && s2 != NULL && s1->node.nodetype == N_SYMBOL && s2->node.nodetype == N_SYMBOL)
 	{
-//		printf("symbol_node_comare: %s vs %s => ", symbol_node_tostring(s1), symbol_node_tostring(s2));
 		if( strcmp(s1->name, s2->name) != 0 )
 		{
-//			printf("different name\n");
 			return 1;
 		}
 		else if( s1->node.parents->count == s2->node.parents->count )
@@ -71,14 +73,11 @@ int symbol_node_compare(SYMBOL_NODE* s1, SYMBOL_NODE* s2)
 			{
 				if( node_getvalue(s1->node.parents->items[i]) != node_getvalue(s2->node.parents->items[i]) )
 				{
-//					printf("different index\n");
 					return -2;
 				}
 			}
-//			printf("equal\n");
 			return 0;
 		}
-//		printf("different dimension\n");
 	}
 	return -1;
 }
@@ -96,13 +95,13 @@ char *_symbol_node_tostring(SYMBOL_NODE* symbol, int index_base)
 	for( i = 0 ; i < nindex ; i++ )
 	{
 		CONSTANT_NODE* cnode = (CONSTANT_NODE*)symbol->node.parents->items[i];
-		sparams[i] = (char*)malloc(25);
+		sparams[i] = (char*)GC_MALLOC_ATOMIC(25);
 		sprintf(sparams[i], "%d", (int)cnode->value-1+index_base);
 		sz += strlen(sparams[i]);
 	}
 	sz += (nindex-1)+2+1;
 
-	buf = (char*)malloc(sizeof(char)*sz);
+	buf = (char*)GC_MALLOC_ATOMIC(sizeof(char)*sz);
 	off = 0;	
 
 	sprintf(buf, "%s", symbol->name);	
@@ -114,9 +113,11 @@ char *_symbol_node_tostring(SYMBOL_NODE* symbol, int index_base)
 			strcat(buf, sparams[i]);
 			if( i < nindex-1 )
 				strcat(buf, ",");
+			GC_FREE(sparams[i]);
 		}	
 		strcat(buf, "]");
 	}
+	GC_FREE(sparams);
 
 	assert(strlen(buf) < sz);
 

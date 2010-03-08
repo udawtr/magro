@@ -53,6 +53,17 @@ void chain_init(CHAIN* chain, int nchain)
 	chain->minterval = 100;
 }
 
+void chain_free(CHAIN* chain)
+{
+	int i;
+	for( i = 0 ; i < chain->nchain ;i++ )
+	{
+		CHAINCORE* core = &chain->core[i];
+		compiler_free(core->compiler);
+		GC_FREE(core->monitor_buff);
+	}
+}
+
 int chain_loadmodel(CHAIN* chain, const char* filename)
 {
 	FILE* fp;

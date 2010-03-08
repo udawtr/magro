@@ -38,7 +38,8 @@ SAMPLER* gamma_sampler_create(STOCHASTIC_NODE* snode)
     sampler_init(&s->sampler);
     s->sampler.samplertype = S_GAMMA;
     s->sampler.snode = snode;
-    s->sampler.stochasticdescendant = stochastic_node_findstochasticdescendant(snode);
+    s->sampler.stochasticdescendant = nodelist_create();
+	stochastic_node_findstochasticdescendant(snode, s->sampler.stochasticdescendant);
 	s->coef = NULL;
     return (SAMPLER*)s;
 }
@@ -48,7 +49,8 @@ int gamma_sampler_cansample(STOCHASTIC_NODE* snode)
 	assert(snode!=NULL);
 	if( snode->name != DGAMMA ) return 0;
 
-    NODELIST* schildren = stochastic_node_findstochasticdescendant(snode);
+    NODELIST* schildren = nodelist_create();
+	stochastic_node_findstochasticdescendant(snode, schildren);
     int i, n = schildren->count;
     for( i = 0 ; i < n ; i++ )
     {
@@ -58,8 +60,10 @@ int gamma_sampler_cansample(STOCHASTIC_NODE* snode)
         if( tmp->name == DPOIS ) continue;
         if( tmp->name == DNORM) continue;
         if( tmp->name == DGAMMA ) continue;
+		nodelist_free(schildren);
 		return 0; 
     }
+	nodelist_free(schildren);
     return 1;
 }
 
@@ -73,6 +77,7 @@ double gamma_sampler_getscale(STOCHASTIC_NODE* snode)
 void gamma_sampler_free(GAMMA_SAMPLER* s)
 {
 	assert(s!=NULL);
+    nodelist_free(s->sampler.stochasticdescendant);
 	sampler_destroy(&s->sampler);
 	if( s->coef != NULL) free(s->coef);
 	free(s);
@@ -138,6 +143,7 @@ void gamma_sampler_update(GAMMA_SAMPLER* s, NMATH_STATE* ms)
 	{
 		coef = (double*)malloc(sizeof(double)*n);
 		gamma_sampler_calcoef(s, coef);
+		s->coef = coef;
 	}
 	if( mode_verbose>2)printf(" nchildren=%d\n", n);
 
@@ -171,7 +177,6 @@ void gamma_sampler_update(GAMMA_SAMPLER* s, NMATH_STATE* ms)
 			}
 		}
 	}
-	if( s->coef != NULL) s->coef = coef;
 
 	xnew = rgamma(ms, r, 1/mu);
 	stochastic_node_setvalue(snode, xnew);

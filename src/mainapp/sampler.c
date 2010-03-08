@@ -72,8 +72,11 @@ void sampler_init(SAMPLER* s)
 void sampler_destroy(SAMPLER* s)
 {
 	assert(s != NULL);
-	nodelist_free(s->stochasticdescendant);
-	s->stochasticdescendant = NULL;
+	if( s->stochasticdescendant != NULL )
+	{
+		nodelist_free(s->stochasticdescendant);
+		s->stochasticdescendant = NULL;
+	}
 }
 
 void sampler_free(SAMPLER* s)
@@ -184,6 +187,12 @@ SAMPLERLIST* samplerlist_create()
 
 void samplerlist_free(SAMPLERLIST* list)
 {
+	int i = 0;
+	for( i = 0 ; i < list->count ; i++ )
+	{
+		sampler_free(list->items[i]);
+	}
+	GC_FREE(list->items);
 	GC_FREE(list);
 }
 

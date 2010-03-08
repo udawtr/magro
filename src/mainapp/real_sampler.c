@@ -40,7 +40,8 @@ SAMPLER* real_sampler_create(STOCHASTIC_NODE* snode)
     sampler_init(&s->sampler);
     s->sampler.samplertype = S_REAL;
     s->sampler.snode = snode;
-    s->sampler.stochasticdescendant = stochastic_node_findstochasticdescendant(snode);
+    s->sampler.stochasticdescendant = nodelist_create();
+	stochastic_node_findstochasticdescendant(snode, s->sampler.stochasticdescendant);
 	s->adapt = 1;
 	s->sumdiff = 0.0;
 	s->iter = 0;
@@ -58,6 +59,7 @@ int real_sampler_cansample(STOCHASTIC_NODE* snode)
 void real_sampler_free(REAL_SAMPLER* s)
 {
 	assert(s!=NULL);
+    nodelist_free(s->sampler.stochasticdescendant);
 	sampler_destroy(&s->sampler);
 	free(s);
 }

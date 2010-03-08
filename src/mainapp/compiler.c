@@ -36,6 +36,7 @@ COMPILER* compiler_create()
 	c = GC_MALLOC(sizeof(COMPILER));
 	c->env = env_create(NULL);
 	c->model = model_create();
+	c->graph = NULL;
 	return c;
 }
 
@@ -44,9 +45,23 @@ void compiler_free(COMPILER* c)
 	assert( c != NULL );
 	if( c->env != NULL)
 	{
-		env_free(c->env);
+		ENV* env = env_stackout(c->env);
+		while( env != NULL )
+		{
+			env = env_stackout(env);
+		}
 		c->env = NULL;
 	}
+	if( c->model != NULL )
+	{
+		model_free(c->model);
+		c->model = NULL;
+	}
+	if( c->graph != NULL )
+	{
+		nodelist_free(c->graph);
+		c->graph = NULL;
+	}	
 	GC_FREE(c);
 }
 
@@ -58,8 +73,6 @@ void compiler_buildrelations(COMPILER* c, BUGS_NODE* node)
 	BUGS_NODE* relations;
 	BUGS_NODE* var;
 	BUGS_NODE* func;
-	RANGE_NODE* range;
-	CONSTANT_NODE* loopcounter;
 	STOCHASTIC_NODE* snode;
 	NODE* symbol;
 
@@ -87,16 +100,19 @@ void compiler_buildrelations(COMPILER* c, BUGS_NODE* node)
 		case BN_FOR:
 			counter = rel->params->items[0];
 			assert( counter != NULL && counter->nodetype == BN_COUNTER );
-			range = (RANGE_NODE*)compiler_eval(c, counter->params->items[0]);
 			relations = rel->params->items[1];
 			c->env = env_stackin(c->env);
-			for( j = range->begin ; j <= range->end ; j++ )
 			{
-				loopcounter = constant_node_create(c->model);
-//				printf("BN_FOR: constant_node_setvalue(%s, %f)\n", counter->name, (double)j);
-				constant_node_setvalue(loopcounter, (double)j);
-				env_setsymbol(c->env, counter->name, NP(loopcounter)); 
-				compiler_buildrelations(c, relations);
+				RANGE_NODE* range = (RANGE_NODE*)compiler_eval(c, counter->params->items[0]);
+				for( j = range->begin ; j <= range->end ; j++ )
+				{
+					CONSTANT_NODE* loopcounter  = constant_node_create(c->model);
+					constant_node_setvalue(loopcounter, (double)j);
+					env_setsymbol(c->env, counter->name, NP(loopcounter)); 
+					compiler_buildrelations(c, relations);
+					constant_node_free(loopcounter);
+				}
+				range_node_free(range);
 			}
 			c->env = env_stackout(c->env);
 			break;
@@ -207,7 +223,7 @@ NODE* compiler_eval(COMPILER* c, BUGS_NODE* bnode)
 				else
 				{
 					if( array_node_getsize(array) == 1 )
-						return (NODE*)array_node_getnode(array, 0);
+						return (NODE*)array_node_getnode(array, NULL);
 					else
 						return (NODE*)array;
 				}
@@ -339,7 +355,7 @@ void compiler_setrinit(COMPILER* c, RDATA_NODE* rnode)
 
 			int index[1];
 			index[0] = array_node_getsize(array);
-			array_node_setdimension(array, &index, 1);
+			array_node_setdimension(array, &index[0], 1);
 			env_setsymbol(c->env, name, NP(array));
 		}
 	}
@@ -423,26 +439,29 @@ void compiler_setrdata(COMPILER* c, RDATA_NODE* rnode)
 	GC_FREE(buf); buf = NULL;
 
 	//DUMP env
-/*
-	printf("***BEGIN DUMP ENV***\n");
-	n = c->env->count;
-	for( i = 0 ; i < n ; i++ )
+	if( mode_verbose >=2 )
 	{
-		printf("%s = [", c->env->names[i]);
-		array = (ARRAY_NODE*)c->env->nodes[i];
-		assert(array->node.nodetype == N_ARRAY);
-		l = array_node_getsize(array);
-		for( j = 0 ; j < l ; j++ )
+		printf("***BEGIN DUMP ENV***\n");
+		n = c->env->count;
+		for( i = 0 ; i < n ; i++ )
 		{
-			constant = (CONSTANT_NODE*)array_node_getnode(array,j);
-			assert(constant->node.nodetype == N_CONSTANT);
-			printf("%f", constant->value);
-			if( j < l-1 ) printf(",");
+			printf("%s = [", c->env->names[i]);
+			array = (ARRAY_NODE*)c->env->nodes[i];
+			assert(array->node.nodetype == N_ARRAY);
+			int l = array_node_getsize(array);
+			int idx[3] = {0,0,0};
+			for( j = 0 ; j < l ; j++ )
+			{
+				idx[0] = j;
+				constant = (CONSTANT_NODE*)array_node_getnode(array, idx);
+				assert(constant->node.nodetype == N_CONSTANT);
+				printf("%f", constant->value);
+				if( j < l-1 ) printf(",");
+			}
+			printf("]\n");
 		}
-		printf("]\n");
+		printf("***END DUMP ENV***\n");
 	}
-	printf("***END DUMP ENV***\n");
-*/
 } 
 
 void __compiler_resolvesymbols(NODE**, NODE**, int, NODE**);
@@ -471,6 +490,7 @@ void __compiler_resolvesymbols(NODE** pnode, NODE** symbols, int nsymbols, NODE*
 			if( NP(node) != NP(symbols[i])
 			 && symbol_node_compare((SYMBOL_NODE*)node, (SYMBOL_NODE*)symbols[i]) == 0 )
 			{
+				//node_free(*pnode);
 				*pnode = targets[i];
 			}
 		}
@@ -484,7 +504,6 @@ void compiler_resolvesymbols(COMPILER* c)
 	int i, n;
 	NODE** symbols;
 	NODE** targets;
-	//NODE* node;
 
 	n = c->model->relations->count;
 	symbols = (NODE**)GC_MALLOC(sizeof(NODE*) * n); 
@@ -509,11 +528,18 @@ void compiler_resolvesymbols(COMPILER* c)
 		printf("*** BEGIN DUMP SYMBOL TABLE***\n");
 		for( i = 0 ; i < n ; i++ )
 		{
-			printf("%s = %s\n", node_tostring((NODE*)symbols[i]), node_tostring(targets[i]));
+			char *s1, *s2;
+			s1 = node_tostring((NODE*)symbols[i]);
+			s2 = node_tostring(targets[i]);
+			printf("%s = %s\n", s1, s2);
+			GC_FREE(s1);
+			GC_FREE(s2);
 		}
 		printf("*** END DUMP SYMBOL TABLE***\n");
 	}
 
+	GC_FREE(symbols);
+	GC_FREE(targets);
 }
 
 void __compiler_resolvechildren(NODE* node);
@@ -659,7 +685,8 @@ void compiler_ordergraph(NODELIST* graph)
 		}
 	}
 
-	graph->items = sorted;
+	memcpy(graph->items, sorted, sizeof(NODE*)*n);
+	GC_FREE(sorted);
 }
 
 int __compiler_comparenode(const void* a, const void* b)
@@ -718,14 +745,14 @@ void compiler_buildsamplers(COMPILER* c, NODELIST* graph)
 		node = graph->items[i];
 		if( node->nodetype == N_STOCHASTIC && node_isobserved(node) == 0 )
 		{
-			list = stochastic_node_findstochasticdescendant((STOCHASTIC_NODE*)node);
-//			printf("SAMPLERS: %s (isobserved=%d, nstoch_children=%d)\n", node_tostring(nodedic_findsymbol(c->model->relations,node)), node_isobserved(node), list->count);
+			list = nodelist_create();
+			stochastic_node_findstochasticdescendant((STOCHASTIC_NODE*)node, list);
 			for( j = 0 ; j < list->count ; j++ )
 			{
 //				printf("   => %s\n", node_tostring(list->items[j]));
 			}
-
 			model_addsampler(c->model, sampler_create((STOCHASTIC_NODE*)node));
+			nodelist_free(list);
 		}
 	}
 
@@ -771,9 +798,9 @@ void compiler_compile(COMPILER* c,  BUGS_NODE* pnode)
 	int i,j,n;
 
 	assert(c!=NULL);
-
 	if( mode_verbose ) { printf("building relations ..."); fflush(stdout); }
 	compiler_buildrelations(c, pnode);
+	
 	if( mode_verbose ) printf(" success (%d)\n", c->model->relations->count);
 	if( mode_verbose > 1 )
 	{
@@ -847,8 +874,6 @@ void compiler_compile(COMPILER* c,  BUGS_NODE* pnode)
 		}
 		printf("***END DUMP SAMPLERS***\n");
 	}
-
-	//nodelist_free(graph);
 }
 
 void compiler_savehdf(COMPILER* c, FILE* fp, char** monitor, int nmonitor, int burnin, int updates, int thin)

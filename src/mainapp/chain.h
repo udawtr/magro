@@ -72,6 +72,7 @@ struct _CHAIN_ARG
 };
 
 void chain_init(CHAIN* chain, int nchain);
+void chain_free(CHAIN* chain);
 int chain_loadmodel(CHAIN* chain, const char* filename);
 int chain_loaddata(CHAIN* chain, const char* filename);
 int chain_loadinit(CHAIN* chain, int id, const char* filename);

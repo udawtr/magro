@@ -38,9 +38,10 @@ SAMPLER* norm_sampler_create(STOCHASTIC_NODE* snode)
 	sampler_init(&s->sampler);
 	s->sampler.samplertype = S_NORM;
 	s->sampler.snode = snode;
-	s->sampler.stochasticdescendant = stochastic_node_findstochasticdescendant(snode);
+	s->sampler.stochasticdescendant = nodelist_create();
+	stochastic_node_findstochasticdescendant(snode, s->sampler.stochasticdescendant);
 	s->beta = NULL;
-	return s;
+	return (SAMPLER*)s;
 }
 
 int norm_sampler_cansample(STOCHASTIC_NODE* snode)
@@ -48,20 +49,27 @@ int norm_sampler_cansample(STOCHASTIC_NODE* snode)
 	assert(snode != NULL);
 	if( snode->name != DNORM ) return 0;
 
-	NODELIST* schildren = stochastic_node_findstochasticdescendant(snode);
+	NODELIST* schildren = nodelist_create();
+	stochastic_node_findstochasticdescendant(snode, schildren);
 	int i, n = schildren->count;
 	for( i = 0 ; i < n ; i++ )
 	{
 		STOCHASTIC_NODE* tmp;
 		tmp = (STOCHASTIC_NODE*)schildren->items[i];
-		if( tmp->name != DNORM ) return 0;
+		if( tmp->name != DNORM )
+		{
+			nodelist_free(schildren);
+			return 0;
+		}
 	}
+	nodelist_free(schildren);
 	return 1;
 }
 
 void norm_sampler_free(NORM_SAMPLER* s)
 {
 	assert(s!=NULL);
+	nodelist_free(s->sampler.stochasticdescendant);
 	sampler_destroy(&s->sampler);
 	if( s->beta != NULL) free(s->beta);
 	free(s);

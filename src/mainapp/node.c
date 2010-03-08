@@ -51,6 +51,7 @@ void node_init(NODE* node, MODEL* m)
 	node->order = 0;
 	node->_isobserved = 0;
 	node->_isinitialized = 0;
+	node->refcount = 1;
 }
 
 void node_initialize(NODE* node, NMATH_STATE *ms)
@@ -71,15 +72,44 @@ void node_initialize(NODE* node, NMATH_STATE *ms)
 void node_destroy(NODE* node)
 {
 	assert( node != NULL );
-	if( node->parents != NULL )  nodelist_free(node->parents);
-	if( node->children != NULL ) nodelist_free(node->children);
+	if( node->parents != NULL )
+	{
+		nodelist_free(node->parents);
+		node->parents = NULL;
+	}
+	if( node->children != NULL )
+	{
+		nodelist_free(node->children);
+		node->children = NULL;
+	}
 }
 
 void node_free(NODE* node)
 {	
 	assert( node != NULL );
-	node_destroy(node);
-	GC_FREE(node);
+	switch(node->nodetype)
+	{
+	case N_ARRAY:
+		array_node_free((ARRAY_NODE*)node);
+		break;
+	case N_CONSTANT:
+		constant_node_free((CONSTANT_NODE*)node);
+		break;
+	case N_RANGE:
+		range_node_free((RANGE_NODE*)node);
+		break;
+	case N_SYMBOL:
+		symbol_node_free((SYMBOL_NODE*)node);
+		break;
+	case N_STOCHASTIC:
+		stochastic_node_free((STOCHASTIC_NODE*)node);
+		break;
+	case N_FUNCTION:
+		function_node_free((FUNCTION_NODE*)node);
+		break;
+	default:
+		exit(99);
+	}		
 }
 
 char* node_tostring(NODE* node)
@@ -193,6 +223,7 @@ double (*func_getvalue[8])(NODE* node) = {
 
 double node_getvalue(NODE* node)
 {
+	char *tmp;
 	assert(node != NULL);
 	//if( func_getvalue[node->nodetype] != NULL )
 	{
@@ -211,7 +242,9 @@ double node_getvalue(NODE* node)
 		printf("node_getvalue: can't get value [node type:N_NODE]\n");
 		break;
 	case N_ARRAY:
-		printf("node_getvalue: can't get value [node type:N_ARRAY] expressoin=%s\n", node_tostring(node));
+		tmp = node_tostring(node);
+		printf("node_getvalue: can't get value [node type:N_ARRAY] expressoin=%s\n", tmp);
+		GC_FREE(tmp);
 		break;
 	case N_RANGE:
 		printf("node_getvalue: can't get value [node type:N_RANGE]\n");
@@ -358,6 +391,7 @@ void nodelist_add(NODELIST* pnodelist, NODE* pnode)
 		polditems = NULL;
 	}
 	pnewitems[count-1] = pnode;
+	pnode->refcount++;
 
 	pnodelist->items = pnewitems;
 	pnodelist->count = count;
@@ -377,8 +411,16 @@ int nodelist_contains(NODELIST* list, NODE* node)
 
 void nodelist_free(NODELIST* list)
 {
-	assert(list != NULL);
-	GC_FREE(list);
+	int i;
+	if( list != NULL )
+	{	
+		for( i = 0 ; i < list->count ; i++ )
+		{
+			node_free(list->items[i]);
+			list->items[i] = NULL;
+		}
+		GC_FREE(list);
+	}
 }
 
 NODEDIC* nodedic_create()
@@ -407,6 +449,7 @@ void nodedic_add(NODEDIC* pnodelist, NODE* symbol, NODE* pnode)
         polditems = NULL;
     }
     pnewitems[count-1] = pnode;
+	pnode->refcount++;
     pnodelist->items = pnewitems;
 
 	pnewsymbols = (NODE**)GC_MALLOC(sizeof(NODE*) * count);
@@ -417,6 +460,7 @@ void nodedic_add(NODEDIC* pnodelist, NODE* symbol, NODE* pnode)
 		poldsymbols = NULL;
 	}
 	pnewsymbols[count-1] = symbol;
+	symbol->refcount++;
 	pnodelist->symbols = pnewsymbols;
 
     pnodelist->count = count;
@@ -454,17 +498,27 @@ NODE* nodedic_findnode_byliteral(NODEDIC* dic, char* literal)
 	n = dic->count;
 	for( i = 0 ; i < n ; i++ )
 	{
-//		printf("nodedic_findnode_byliteral: symbols[i]=%s, literal=%s\n", node_tostring(dic->symbols[i]), literal);
-		if( strcmp(node_tostring(dic->symbols[i]), literal) == 0 )
+		char *s = node_tostring(dic->symbols[i]);
+		if( strcmp(s, literal) == 0 )
 		{
+			GC_FREE(s);
 			return dic->items[i];
 		}
+		GC_FREE(s);
 	}
 	return NULL;
 }
 
 void nodedic_free(NODEDIC* dic)
 {
+	int i;
     assert(dic!= NULL);
+	for( i = 0 ; i < dic->count ; i++ )
+	{
+		node_free(dic->symbols[i]);
+		node_free(dic->items[i]);
+		dic->symbols[i] = NULL;
+		dic->items[i] = NULL;
+	}
     GC_FREE(dic);
 }

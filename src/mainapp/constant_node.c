@@ -47,8 +47,19 @@ CONSTANT_NODE* constant_node_create(MODEL* m)
 void constant_node_free(CONSTANT_NODE* constant)
 {
 	assert(constant != NULL);
-	node_destroy((NODE*)constant);
-	GC_FREE(constant);
+	constant->node.refcount--;
+	if( constant->node.refcount <= 0 )
+	{
+		node_destroy((NODE*)constant);
+	
+		if( constant->name != NULL )
+		{
+			GC_FREE(constant->name);
+			constant->name = NULL;
+		}
+
+		GC_FREE(constant);
+	}
 }
 
 char* constant_node_tostring(CONSTANT_NODE* constant)

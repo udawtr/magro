@@ -46,8 +46,12 @@ RANGE_NODE* range_node_create(MODEL* m, double begin, double end)
 void range_node_free(RANGE_NODE* range)
 {
 	assert(range != NULL);
-	node_destroy((NODE*)range);
-	GC_FREE(range);
+	range->node.refcount--;
+	if( range->node.refcount <= 0 )
+	{
+		node_destroy((NODE*)range);
+		GC_FREE(range);
+	}
 }
 
 char* range_node_tostring(RANGE_NODE* range)

@@ -514,7 +514,7 @@ int main(int argc, char** argv)
 		}
 	}
 
-	//compiler_free(c);
+	chain_free(&chain);
 	
 	return 0;
 }

@@ -248,8 +248,12 @@ int function_node_isbinary(FUNCTION_NODE* fnode)
 void function_node_free(FUNCTION_NODE* fnode)
 {
 	assert( fnode != NULL );
-	node_destroy((NODE*)fnode);
-	GC_FREE(fnode);
+	fnode->node.refcount--;
+	if( fnode->node.refcount <= 0 )
+	{
+		node_destroy((NODE*)fnode);
+		GC_FREE(fnode);
+	}
 }
 
 char* function_node_tostring(FUNCTION_NODE* fnode)

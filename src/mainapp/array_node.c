@@ -46,7 +46,7 @@ ARRAY_NODE* array_node_create(MODEL* m)
 	return array;
 }
 
-void array_node_setdimension(ARRAY_NODE* array, int dims[], int ndims)
+void array_node_setdimension(ARRAY_NODE* array, int* dims, int ndims)
 {
 	assert(ARRAY_MAX_DIMS >= ndims);
 	int i;
@@ -63,8 +63,12 @@ void array_node_setdimension(ARRAY_NODE* array, int dims[], int ndims)
 void array_node_free(ARRAY_NODE* array)
 {
 	assert(array != NULL);
-	node_destroy((NODE*)array);
-	GC_FREE(array);
+	array->node.refcount--;
+	if( array->node.refcount <= 0 )
+	{
+		node_destroy((NODE*)array);
+		GC_FREE(array);
+	}
 }
 
 char* array_node_tostring(ARRAY_NODE* array)
@@ -96,6 +100,7 @@ char* array_node_tostring(ARRAY_NODE* array)
 	{
 		strcat(buf, sparams[i]);
 		if( i < c-1 ) strcat(buf, ",");
+		GC_FREE(sparams[i]);
 	}
 	strcat(buf, "),Dim=c(");
 	for( i = 0 ; i < ARRAY_MAX_DIMS ; i ++ )
@@ -106,6 +111,7 @@ char* array_node_tostring(ARRAY_NODE* array)
 		if( i < ARRAY_MAX_DIMS-1 ) 
 			strcat(buf, ",");
 	}
+	strcat(buf, "))");
 
 	assert(strlen(buf) < sz);
 
@@ -137,7 +143,7 @@ void array_node_setname(ARRAY_NODE* symbol, char* name)
 	sz = sizeof(char) * (len+1);
 	symbol->name = (char*)GC_MALLOC(sz);
     memcpy(symbol->name, name, sz);
-	symbol->name[sz-1] = '\0';
+	symbol->name[len] = '\0';
 }
 
 int array_node_getsize(ARRAY_NODE* array)

@@ -68,6 +68,7 @@ struct _NODE {
 	int _isobserved;
 	int _isinitialized;
 	int order;
+	int refcount;
 };
 
 struct _NODELIST {
@@ -153,7 +154,7 @@ NODE* nodedic_findnode_byliteral(NODEDIC* dic, char* literal);
 void nodedic_free(NODEDIC* list);
 
 ARRAY_NODE* array_node_create(__MODEL* m);
-void array_node_setdimension(ARRAY_NODE* array, int dims[], int ndims);
+void array_node_setdimension(ARRAY_NODE* array, int *dims, int ndims);
 void array_node_free(ARRAY_NODE* array);
 int array_node_getsize(ARRAY_NODE* array);
 void array_node_setname(ARRAY_NODE* array, char* name);
@@ -191,7 +192,7 @@ char* stochastic_node_tostring(STOCHASTIC_NODE* snode);
 char* stochastic_node_toenvstring(STOCHASTIC_NODE* snode);
 //SYMBOL_NODE* stochastic_node_getsymbol(STOCHASTIC_NODE* snode);
 //NODE* stochastic_node_gettarget(STOCHASTIC_NODE* snode);
-NODELIST* stochastic_node_findstochasticdescendant(STOCHASTIC_NODE* snode);
+void stochastic_node_findstochasticdescendant(STOCHASTIC_NODE* snode, NODELIST* list);
 double stochastic_node_logdensity(STOCHASTIC_NODE* snode, NMATH_STATE *ms);
 char* stochastic_node_toenvstring_logdensity(STOCHASTIC_NODE* snode);
 

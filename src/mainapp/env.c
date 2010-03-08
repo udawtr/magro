@@ -61,12 +61,15 @@ void env_free(ENV* env)
 	for( i = 0 ; i < sz ; i++ )
 	{
 		GC_FREE(env->names[i]);
+		node_free(env->nodes[i]);
 	}
 	GC_FREE(env->names);
 	GC_FREE(env->nodes);
 
 	env->names = NULL;
 	env->nodes = NULL;
+
+	GC_FREE(env);
 }
 
 char* env_getenvstring(const char* name)
@@ -139,6 +142,9 @@ void env_setsymbol(ENV* env, const char* name, NODE* node)
 	i= env_getindex(env, name);
 	if( i>= 0 )
 	{
+		//redefine the environment value
+		NODE* oldnode;
+		
 		if( env->names[i] != NULL ) GC_FREE(env->names[i]);
 		sz = sizeof(char) * (strlen(name)+1);
 		env->names[i] = GC_MALLOC_ATOMIC(sz);
@@ -146,34 +152,44 @@ void env_setsymbol(ENV* env, const char* name, NODE* node)
 		memcpy(env->names[i], name, sz);
 		env->names[i][sz-1] = '\0';
 		NODE_CHECK(node);
-		env->nodes[i] = node; 
+
+		oldnode = env->nodes[i];
+		env->nodes[i] = node;
+
+		node_free(oldnode);
+		node->refcount++;
 	}
 	else if( env->count < env->size )
 	{
 		i = env->count;
 		env->count = env->count + 1;
+		
 		sz = sizeof(char) * (strlen(name)+1);
 		env->names[i] = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(name)+1));
 		assert(env->names[i] != NULL);
 		memcpy(env->names[i], name, sz);
 		env->names[i][sz-1] = '\0';
 		NODE_CHECK(node);
+		
 		env->nodes[i] = node;
-		//printf("env_setsymbol: '%s'(%d)\n", name, strlen(name));
+		node->refcount++;
+		//char *tmp = node_tostring(node);
+		//printf("env_setsymbol: '%s'(%d) = %s\n", name, strlen(name), tmp);
+		//GC_FREE(tmp);
 	}
 	else
 	{
 		printf("env_setsymbol: buffer overflow.\n");
 		exit(1);
 	}
+
+	node->refcount++;
 }
 
 ENV* env_stackout(ENV* env)
 {
 	ENV* parent;
 	assert(env != NULL);
-
-	//printf("env_stackout\n");
 	
 	parent = env->parent;
 	env_free(env);
@@ -183,7 +199,6 @@ ENV* env_stackout(ENV* env)
 
 ENV* env_stackin(ENV* env)
 {
-	//printf("env_stackin\n");
 	return env_create(env);	
 }
 
