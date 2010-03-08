@@ -509,7 +509,7 @@ int main(int argc, char** argv)
 				
 				hdf_destroy(&hdf);
 
-				system("gcc  main.c environment.c sampler.c -L/usr/local/lib -lnmath -I/usr/local/include -W -Wall -g");
+				system("gcc  main.c environment.c sampler.c -L/usr/local/lib -lnmath -I/usr/local/include -W -Wall -lm -pthread");
 			}
 		}
 	}

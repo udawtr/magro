@@ -110,7 +110,7 @@ char* dbin_toenvstring_density(char* x, char** par, unsigned int npar, int give_
 	char* size = par[1];
 	char* prob = par[0];
 	char* buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(size) + strlen(prob) + 20));
-	sprintf(buff, "dbinom(%s, %s, %s, %d)", x, size, prob, give_log);
+	sprintf(buff, "dbinom(state,%s, %s, %s, %d)", x, size, prob, give_log);
 	return buff;
 }
 
@@ -136,7 +136,7 @@ char* dgamma_toenvstring_density(char* x, char** par, unsigned int npar, int giv
 	char* shape= par[0];
 	char* _scale = par[1];
 	char* buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(shape) + strlen(_scale) + 30));
-	sprintf(buff, "dgamma(%s, %s, 1.0/(%s), %d)", x, shape, _scale, give_log);
+	sprintf(buff, "dgamma(state, %s, %s, 1.0/(%s), %d)", x, shape, _scale, give_log);
 	return buff;
 }
 
@@ -162,7 +162,7 @@ char* dnorm_toenvstring_density(char* x, char** par, unsigned int npar, int give
 	char* mu= par[0];
 	char* _sigma= par[1];
 	char* buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(mu) + strlen(_sigma) + 40));
-	sprintf(buff, "dnorm(%s, %s, 1.0/sqrt(%s), %d)", x, mu, _sigma, give_log);
+	sprintf(buff, "dnorm(state, %s, %s, 1.0/sqrt(%s), %d)", x, mu, _sigma, give_log);
 	return buff;
 }
 

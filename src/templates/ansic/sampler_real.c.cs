@@ -44,7 +44,7 @@ double sampler_<?cs name:sampler ?>_logfullconditional(int index, NMATH_STATE *s
 
 void sampler_<?cs name:sampler ?>_update(int index, NMATH_STATE *state)
 {
-	double g0 = sampler_<?cs name:sampler ?>_logfullconditional(index);
+	double g0 = sampler_<?cs name:sampler ?>_logfullconditional(index,state);
 	double z = g0 - exponential(state);
 
 	double xold = <?cs var:sampler.symbol ?>; 
@@ -55,7 +55,7 @@ void sampler_<?cs name:sampler ?>_update(int index, NMATH_STATE *state)
 	printf("*reals: g0=%%f, z=%%f, xold=%%f, L=%%f, R=%%f\n", g0, z, xold, L, R);
 #endif
 
-	int j = (int)(uniform() * sampler_<?cs name:sampler ?>_max);
+	int j = (int)(uniform(state) * sampler_<?cs name:sampler ?>_max);
 	int k = sampler_<?cs name:sampler ?>_max - 1 - j;
 
 	<?cs var:sampler.symbol ?> = L;
@@ -73,7 +73,7 @@ void sampler_<?cs name:sampler ?>_update(int index, NMATH_STATE *state)
 	// Keep sampling from the interval until acceptance ( the loop is guaranteed to terminate.)
 	double xnew;
 	for(;;){
-		xnew = L + uniform() * (R-L);
+		xnew = L + uniform(state) * (R-L);
 		<?cs var:sampler.symbol ?> = xnew;
 		double g = sampler_<?cs name:sampler ?>_logfullconditional(index, state);
 #ifdef _DEBUG
