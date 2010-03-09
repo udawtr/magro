@@ -1,0 +1,4 @@
+2010-03-09 Wataru Uda <udawtr@gmail.com>
+	* src/mainapp/*: Fix memory leaks
+	* src/templates/ansic/sampler_real.c.cs: Fix code template for slice sampler
+

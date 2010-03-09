@@ -1,3 +1,9 @@
+0.1.1
+
+Bug fix release (2010-03-09).
+* Fix: Genereted code has compile errors (slice sampler)
+* Fix: Some memory leak fixed. 
+
 0.1
 
 First release (2010-02-18). 
