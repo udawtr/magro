@@ -1,3 +1,7 @@
+2010-03-10 Wataru Uda <udawtr@gmail.com>
+	* src/clearsilver: Add modification version of ClearSilver
+    * src/mainapp/chain.c, src/parser_bugs/parser_bugs.c: Fix of compile with -O3 in Mac OS X 10.6.2
+
 2010-03-09 Wataru Uda <udawtr@gmail.com>
 	* src/mainapp/*: Fix memory leaks
 	* src/templates/ansic/sampler_real.c.cs: Fix code template for slice sampler

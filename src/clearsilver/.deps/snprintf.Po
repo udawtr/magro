@@ -1,3 +1,0 @@
-snprintf.o snprintf.o: snprintf.c cs_config.h
-
-cs_config.h:
