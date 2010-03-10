@@ -1,6 +1,8 @@
 2010-03-10 Wataru Uda <udawtr@gmail.com>
 	* src/clearsilver: Add modification version of ClearSilver
     * src/mainapp/chain.c, src/parser_bugs/parser_bugs.c: Fix of compile with -O3 in Mac OS X 10.6.2
+    * configure.in: Remove dependency for ClearSilver and Boehm'sGC
+	* vcsolution/* and more: Add Windows support with Visual C++ 2008 (Experimental)
 
 2010-03-09 Wataru Uda <udawtr@gmail.com>
 	* src/mainapp/*: Fix memory leaks
