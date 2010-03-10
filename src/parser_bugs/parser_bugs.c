@@ -1264,7 +1264,7 @@ yyparse ()
   
   int yystate;
   int yyn;
-  int yyresult;
+  volatile int yyresult;
   /* Number of tokens to shift before error messages enabled.  */
   int yyerrstatus;
   /* Look-ahead token as an internal (translated) token number.  */

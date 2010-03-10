@@ -88,6 +88,8 @@ int chain_loadmodel(CHAIN* chain, const char* filename)
             bugs_node_dump(g_bugsnode);
     
 		chain->_bugsnode = g_bugsnode;
+
+		return 0;
 	}
     else
     {
