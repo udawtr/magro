@@ -1,4 +1,4 @@
-SUBDIRS = nmath parser_rdata parser_bugs mainapp
+SUBDIRS = nmath parser_rdata parser_bugs clearsilver mainapp
 
 pkgdata_templatesdir = ${pkgdatadir}/templates
 pkgdata_templates_ansicdir = ${pkgdata_templatesdir}/ansic

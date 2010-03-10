@@ -10,5 +10,7 @@ function_node.c stochastic_node.c array_node.c symbol_node.c constant_node.c ran
 magro_LDADD = \
  ${top_builddir}/src/nmath/libnmath.a \
 ${top_builddir}/src/parser_rdata/libparser_rdata.a \
-${top_builddir}/src/parser_bugs/libparser_bugs.a
+${top_builddir}/src/parser_bugs/libparser_bugs.a \
+${top_builddir}/src/clearsilver/libcs.a
+
 

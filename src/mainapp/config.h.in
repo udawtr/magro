@@ -25,12 +25,6 @@
 /* Define to 1 if you have the `isnan' function. */
 #undef HAVE_ISNAN
 
-/* Define to 1 if you have the `neo_cs' library (-lneo_cs). */
-#undef HAVE_LIBNEO_CS
-
-/* Define to 1 if you have the `neo_utl' library (-lneo_utl). */
-#undef HAVE_LIBNEO_UTL
-
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 

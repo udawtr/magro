@@ -28,7 +28,7 @@
 #include <dirent.h>
 #include "compiler.h"
 #include "../nmath/nmath.h"
-#include <ClearSilver.h>
+#include "../clearsilver/ClearSilver.h"
 #include "conf.h"
 #include <pthread.h>
 #include "chain.h"

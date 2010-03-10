@@ -14,9 +14,9 @@ AC_PROG_RANLIB
 # Checks for libraries.
 #AC_CHECK_LIB([gc], [GC_malloc])
 # FIXME: Replace `main' with a function in `-lneo_cs':
-AC_CHECK_LIB([neo_cs], [main])
+#AC_CHECK_LIB([neo_cs], [main])
 # FIXME: Replace `main' with a function in `-lneo_utl':
-AC_CHECK_LIB([neo_utl], [main])
+#AC_CHECK_LIB([neo_utl], [main])
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -35,6 +35,7 @@ AC_C_INLINE
 AC_FUNC_CLOSEDIR_VOID
 AC_CHECK_FUNCS([floor getcwd mkdir pow sqrt isnan])
 
+AC_SUBST("src/clearsilver")
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
@@ -42,6 +43,7 @@ AC_CONFIG_FILES([
 	src/nmath/Makefile
 	src/parser_rdata/Makefile
 	src/parser_bugs/Makefile
+	src/clearsilver/Makefile
 ])
 
 AC_OUTPUT
