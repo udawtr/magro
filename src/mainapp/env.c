@@ -89,10 +89,11 @@ char* env_getenvstring(const char* name)
 
 NODE* env_find(ENV* env, const char* name)
 {
+	int index;
+
 	assert(env != NULL);
 	assert(name != NULL && strcmp(name, "") != 0);
 
-	int index;
 	index = env_getindex(env, name);
 	if( index >= 0 ) 
 	{

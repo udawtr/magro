@@ -6,12 +6,13 @@
 double norm_rand(NMATH_STATE *state)
 {
     double u1;
+	double nr;
 
     const double BIG = 134217728; /* 2^27 */
     /* unif_rand() alone is not of high enough precision */
     u1 = unif_rand(state);
     u1 = (int)(BIG * u1) + unif_rand(state);
-    double nr = qnorm5(state, u1 / BIG, 0.0, 1.0, 1, 0);
+    nr = qnorm5(state, u1 / BIG, 0.0, 1.0, 1, 0);
 	return nr;
 }
 

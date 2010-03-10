@@ -617,7 +617,6 @@ goto find_rule; \
 char *bugstext;
 #line 1 "lexer_bugs.l"
 #line 2 "lexer_bugs.l"
-#include <gc.h>
 #include "parser_bugs.h"
 
 #line 624 "lex.bugs.c"
@@ -630,7 +629,7 @@ char *bugstext;
  * down here because we want the user's section 1 to have been scanned first.
  * The user has a chance to override it with an option.
  */
-#include <unistd.h>
+//#include <unistd.h>
 #endif
 
 #ifndef YY_EXTRA_TYPE

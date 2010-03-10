@@ -19,6 +19,10 @@ __BEGIN_DECLS
 #include "neo_misc.h"
 #include "neo_err.h"
 
+#ifdef __VC
+typedef intptr_t	pid_t;
+#endif
+
 /*
  * Function: filter_wait - wrap waitpid to decode the exitcode and why
  *           your filter quit

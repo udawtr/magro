@@ -34,8 +34,10 @@
 
 SAMPLER* real_sampler_create(STOCHASTIC_NODE* snode)
 {
-    assert(snode!=NULL);
     REAL_SAMPLER* s;
+
+    assert(snode!=NULL);
+
     s = (REAL_SAMPLER*)malloc(sizeof(REAL_SAMPLER));
     sampler_init(&s->sampler);
     s->sampler.samplertype = S_REAL;
@@ -47,6 +49,7 @@ SAMPLER* real_sampler_create(STOCHASTIC_NODE* snode)
 	s->iter = 0;
 	s->width = 1.0;
 	s->max = 10;
+
     return (SAMPLER*)s;
 }
 
@@ -66,8 +69,6 @@ void real_sampler_free(REAL_SAMPLER* s)
 
 void real_sampler_update(REAL_SAMPLER* s, NMATH_STATE* ms)
 {
-	assert(s!=NULL);
-
 	STOCHASTIC_NODE *snode = s->sampler.snode;
 	double g0 = sampler_logfullconditional((SAMPLER*)s, ms);
 	double z = g0 - exponential(ms);
@@ -75,14 +76,19 @@ void real_sampler_update(REAL_SAMPLER* s, NMATH_STATE* ms)
 	double xold = stochastic_node_getvalue(snode); 
 	double L = xold - uniform(ms) * s->width;
 	double R = L + s->width;
+	int j, k;
+	double xnew;
+
+	assert(s!=NULL);
+
 
 	if( mode_verbose > 2 )
     {
 		printf("*reals: g0=%f, z=%f, xold=%f, L=%f, R=%f\n", g0, z, xold, L, R);
 	}
 
-	int j = (int)(uniform(ms) * s->max);
-	int k = s->max - 1 - j;
+	j = (int)(uniform(ms) * s->max);
+	k = s->max - 1 - j;
 
 	stochastic_node_setvalue(snode, L);
 	while(j-- > 0 && sampler_logfullconditional((SAMPLER*)s, ms) > z) {
@@ -97,11 +103,11 @@ void real_sampler_update(REAL_SAMPLER* s, NMATH_STATE* ms)
 	}
 
 	// Keep sampling from the interval until acceptance ( the loop is guaranteed to terminate.)
-	double xnew;
 	for(;;){
+		double g;
 		xnew = L + uniform(ms) * (R-L);
 		stochastic_node_setvalue(snode, xnew);
-		double g = sampler_logfullconditional((SAMPLER*)s, ms);
+		g = sampler_logfullconditional((SAMPLER*)s, ms);
 		if( mode_verbose > 2 )
 		{
         	printf("      L=%f, R=%f, g=%f, xnew=%f\n",  L, R, g, xnew);

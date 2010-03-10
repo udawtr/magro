@@ -41,7 +41,7 @@ typedef struct _nserver {
   int server_fd;
 } NSERVER;
 
-NEOERR *nserver_proc_start(NSERVER *server, BOOL debug);
+NEOERR *nserver_proc_start(NSERVER *server, NEOBOOL debug);
 
 __END_DECLS
 

@@ -32,8 +32,10 @@
 
 SAMPLER* norm_sampler_create(STOCHASTIC_NODE* snode)
 {
-	assert(snode!=NULL);
 	NORM_SAMPLER* s;
+
+	assert(snode!=NULL);
+
 	s = (NORM_SAMPLER*)malloc(sizeof(NORM_SAMPLER));
 	sampler_init(&s->sampler);
 	s->sampler.samplertype = S_NORM;
@@ -41,17 +43,21 @@ SAMPLER* norm_sampler_create(STOCHASTIC_NODE* snode)
 	s->sampler.stochasticdescendant = nodelist_create();
 	stochastic_node_findstochasticdescendant(snode, s->sampler.stochasticdescendant);
 	s->beta = NULL;
+
 	return (SAMPLER*)s;
 }
 
 int norm_sampler_cansample(STOCHASTIC_NODE* snode)
 {
+	NODELIST* schildren;
+	int i, n;
+
 	assert(snode != NULL);
 	if( snode->name != DNORM ) return 0;
 
-	NODELIST* schildren = nodelist_create();
+	schildren = nodelist_create();
 	stochastic_node_findstochasticdescendant(snode, schildren);
-	int i, n = schildren->count;
+	n = schildren->count;
 	for( i = 0 ; i < n ; i++ )
 	{
 		STOCHASTIC_NODE* tmp;
@@ -77,13 +83,13 @@ void norm_sampler_free(NORM_SAMPLER* s)
 
 void norm_sampler_calbeta(NORM_SAMPLER* s, double* beta)
 {
-	assert(s != NULL && beta != NULL);
 	STOCHASTIC_NODE* snode = s->sampler.snode;
 	NODE* target;
 	NODELIST* schildren = s->sampler.stochasticdescendant;
-
 	double xold,xnew,mu;
 	int i, n;
+
+	assert(s != NULL && beta != NULL);
 
 	xold  = stochastic_node_getvalue(snode);
 	xnew = xold + 1.0;
@@ -110,10 +116,6 @@ void norm_sampler_calbeta(NORM_SAMPLER* s, double* beta)
 
 void norm_sampler_update(NORM_SAMPLER* s, NMATH_STATE* ms)
 {
-	assert(s != NULL);
-
-	if(mode_verbose>2)printf("*dnorm:  ");
-	
 	STOCHASTIC_NODE* snode;
 	STOCHASTIC_NODE* schild;
 	NODE* target;
@@ -123,7 +125,11 @@ void norm_sampler_update(NORM_SAMPLER* s, NMATH_STATE* ms)
 	double A, B, Y, tau, alpha;
 	double* beta;
 	double tau_beta;
-	
+
+	assert(s != NULL);
+
+	if(mode_verbose>2)printf("*dnorm:  ");
+		
 	snode = s->sampler.snode;
 	schildren = s->sampler.stochasticdescendant;
 	n = schildren->count;

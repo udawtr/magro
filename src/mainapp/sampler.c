@@ -36,20 +36,21 @@ SAMPLER* sampler_create(STOCHASTIC_NODE* snode)
 {
 	enum DISTTYPE name;
 	int i;
-	
-	assert(snode != NULL);
-	name = snode->name;
 
 	SAMPLER* (*create[NSAMPLER]) (STOCHASTIC_NODE* snode) = {
 		norm_sampler_create,
 		gamma_sampler_create,
 		real_sampler_create
 	};
+
 	int (*cansample[NSAMPLER]) (STOCHASTIC_NODE* snode) = {
 		norm_sampler_cansample,
 		gamma_sampler_cansample,
 		real_sampler_cansample
 	};
+	
+	assert(snode != NULL);
+	name = snode->name;
 
 	for( i = 0 ; i < NSAMPLER ; i++ )
 	{
@@ -142,7 +143,7 @@ double sampler_logfullconditional(SAMPLER* s, NMATH_STATE *ms)
 {
 	STOCHASTIC_NODE* snode = s->snode;
 	NODE* node;
-	double lprior, llike;
+	double lprior, llike, lfc;
 	int i,n;
 	
 	assert(s != NULL);
@@ -160,16 +161,16 @@ double sampler_logfullconditional(SAMPLER* s, NMATH_STATE *ms)
 		llike += stochastic_node_logdensity((STOCHASTIC_NODE*)node, ms);
 	}
 
-	double lfc = lprior + llike;
+	lfc = lprior + llike;
 	return lfc;
 }
 
 char* sampler_getvarname(SAMPLER* s, MODEL* m)
 {
+	NODE* sym;
 	assert(s != NULL);
 	assert(s->snode != NULL);
 //	MODEL* m = ((NODE*)s->snode)->model;
-	NODE* sym;
 	assert(m != NULL);
 	sym =nodedic_findsymbol(m->relations, (NODE*)s->snode);
 	return node_tostring(sym);

@@ -23,7 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
+//#include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
@@ -46,6 +46,10 @@
 /* turn on some debug output for expressions */
 #define DEBUG_EXPR_PARSE 0
 #define DEBUG_EXPR_EVAL 0
+
+#ifdef __VC
+#define snprintf	sprintf
+#endif
 
 typedef enum
 {
@@ -222,7 +226,7 @@ static void init_node_pos(CSTREE *node, CSPARSE *parse)
     node->fname = NULL;
   }
   else {
-    node->fname = strdup(parse->context);
+    node->fname = _strdup(parse->context);
     if (node->fname == NULL) {
       /* malloc error, cannot proceed */
       node->linenum = -1;
@@ -351,7 +355,7 @@ static int find_open_delim (CSPARSE *parse, char *buf, int x, int len)
   {
     p = strchr (&(buf[x]), '<');
     if (p == NULL) return -1;
-    if (p[1] == '?' && !strncasecmp(&p[2], parse->tag, parse->taglen) &&
+    if (p[1] == '?' && !_strnicmp(&p[2], parse->tag, parse->taglen) &&
 	(p[ws_index] == ' ' || p[ws_index] == '\n' || p[ws_index] == '\t' || p[ws_index] == '\r'))
       /*
     if (p[1] && p[1] == '?' &&
@@ -483,8 +487,12 @@ static char *find_context (CSPARSE *parse, int offset, char *buf, size_t blen)
 	if (count > offset) break;
       }
       fclose (fp);
+#ifndef __VC
       snprintf (buf, blen, "[%s:%d]", parse->context, lineno);
-    }
+#else
+      sprintf (buf, "[%s:%d]", parse->context, lineno);
+#endif
+	}
     else
     {
       data = parse->context_string;
@@ -496,16 +504,16 @@ static char *find_context (CSPARSE *parse, int offset, char *buf, size_t blen)
 	  if (data[count++] == '\n') lineno++;
 	}
 	if (parse->context)
-	  snprintf (buf, blen, "[%s:~%d]", parse->context, lineno);
+	  _snprintf (buf, blen, "[%s:~%d]", parse->context, lineno);
 	else
-	  snprintf (buf, blen, "[lineno:~%d]", lineno);
+	  _snprintf (buf, blen, "[lineno:~%d]", lineno);
       }
       else
       {
 	if (parse->context)
-	  snprintf (buf, blen, "[%s:%d]", parse->context, offset);
+	  _snprintf (buf, blen, "[%s:%d]", parse->context, offset);
 	else
-	  snprintf (buf, blen, "[offset:%d]", offset);
+	  _snprintf (buf, blen, "[offset:%d]", offset);
       }
     }
     dump_err = 0;
@@ -513,9 +521,9 @@ static char *find_context (CSPARSE *parse, int offset, char *buf, size_t blen)
   if (dump_err)
   {
     if (parse->context)
-      snprintf (buf, blen, "[-E- %s:%d]", parse->context, offset);
+      _snprintf (buf, blen, "[-E- %s:%d]", parse->context, offset);
     else
-      snprintf (buf, blen, "[-E- offset:%d]", offset);
+      _snprintf (buf, blen, "[-E- offset:%d]", offset);
   }
 
   return buf;
@@ -544,7 +552,7 @@ static char *expand_state (CS_STATE state)
   else if (state & ST_ESCAPE)
     return "ESCAPE";
 
-  snprintf(buf, sizeof(buf), "Unknown state %d", state);
+  _snprintf(buf, sizeof(buf), "Unknown state %d", state);
   return buf;
 }
 
@@ -608,7 +616,7 @@ NEOERR *cs_parse_string (CSPARSE *parse, char *ibuf, size_t ibuf_len)
 	for (i = 1; Commands[i].cmd; i++)
 	{
 	  n = Commands[i].cmdlen;
-	  if (!strncasecmp(token, Commands[i].cmd, n))
+	  if (!_strnicmp(token, Commands[i].cmd, n))
 	  {
 	    if ((Commands[i].has_arg && ((token[n] == ':') || (token[n] == '!')))
 		|| (token[n] == ' ' || token[n] == '\0' || token[n] == '\r' || token[n] == '\n'))
@@ -811,7 +819,7 @@ static NEOERR *var_set_value (CSPARSE *parse, char *name, char *value)
 	    tmp = map->s;
 	  map->type = CS_TYPE_STRING;
 	  map->map_alloc = 1;
-	  map->s = strdup(value);
+	  map->s = _strdup(value);
 	  if (tmp != NULL) free(tmp);
 	  if (map->s == NULL && value != NULL)
 	    return nerr_raise(NERR_NOMEM,
@@ -864,8 +872,8 @@ static char *var_lookup (CSPARSE *parse, char *name)
     {
       char buf[40];
       if (map->s) return map->s;
-      snprintf (buf, sizeof(buf), "%ld", map->n);
-      map->s = strdup(buf);
+      _snprintf (buf, sizeof(buf), "%ld", map->n);
+      map->s = _strdup(buf);
       map->map_alloc = 1;
       return map->s;
     }
@@ -900,7 +908,7 @@ typedef struct _token
 
 struct _simple_tokens
 {
-  BOOL two_chars;
+  NEOBOOL two_chars;
   char *token;
   CSTOKEN_TYPE type;
 } SimpleTokens[] = {
@@ -940,8 +948,8 @@ static NEOERR *parse_tokens (CSPARSE *parse, char *arg, CSTOKEN *tokens,
   char tmp[256];
   int ntokens = 0;
   int x;
-  BOOL found;
-  BOOL last_is_op = 1;
+  NEOBOOL found;
+  NEOBOOL last_is_op = 1;
   char *p, *p2;
   char *expr = arg;
 
@@ -1147,12 +1155,12 @@ static char *token_list (CSTOKEN *tokens, int ntokens, char *buf, size_t buflen)
     {
       save = tokens[i].value[tokens[i].len];
       tokens[i].value[tokens[i].len] = '\0';
-      t = snprintf(p, buflen, "%s%d:%s:'%s'", i ? "  ":"", i, expand_token_type(tokens[i].type, 0), tokens[i].value);
+      t = _snprintf(p, buflen, "%s%d:%s:'%s'", i ? "  ":"", i, expand_token_type(tokens[i].type, 0), tokens[i].value);
       tokens[i].value[tokens[i].len] = save;
     }
     else
     {
-      t = snprintf(p, buflen, "%s%d:%s", i ? "  ":"", i, expand_token_type(tokens[i].type, 0));
+      t = _snprintf(p, buflen, "%s%d:%s", i ? "  ":"", i, expand_token_type(tokens[i].type, 0));
     }
     if (t == -1 || t >= buflen) return buf;
     buflen -= t;
@@ -1452,7 +1460,7 @@ static NEOERR *parse_expr (CSPARSE *parse, char *arg, int lvalue, CSARG *expr)
 
   if (parse->audit_mode) {
     /* Save the complete expression string for future reference */
-    expr->argexpr = strdup(arg);
+    expr->argexpr = _strdup(arg);
   }
 
   err = parse_expr2 (parse, tokens, ntokens, lvalue, expr);
@@ -1561,7 +1569,7 @@ static NEOERR *escape_parse (CSPARSE *parse, int cmd, char *arg)
   for (esc_cursor = &EscapeModes[0];
        esc_cursor->mode != NULL;
        esc_cursor++)
-    if (!strncasecmp(a, esc_cursor->mode, strlen(esc_cursor->mode)))
+    if (!_strnicmp(a, esc_cursor->mode, strlen(esc_cursor->mode)))
     {
       if (err != STATUS_OK) return nerr_pass(err);
       parse->escaping.next_stack = esc_cursor->context;
@@ -1902,7 +1910,7 @@ char *arg_eval_str_alloc (CSPARSE *parse, CSARG *arg)
     case CS_TYPE_VAR_NUM:
       s = buf;
       n_val = arg_eval_num (parse, arg);
-      snprintf (buf, sizeof(buf), "%ld", n_val);
+      _snprintf (buf, sizeof(buf), "%ld", n_val);
       break;
     default:
       ne_warn ("Unsupported type %s in arg_eval_str_alloc",
@@ -1910,7 +1918,7 @@ char *arg_eval_str_alloc (CSPARSE *parse, CSARG *arg)
       s = NULL;
       break;
   }
-  if (s) return strdup(s);
+  if (s) return _strdup(s);
   return NULL;
 }
 
@@ -2309,7 +2317,7 @@ static NEOERR *eval_expr (CSPARSE *parse, CSARG *expr, CSARG *result)
       }
       else if (expr->op_type & (CS_OP_AND | CS_OP_OR))
       {
-        /* eval as bool */
+        /* eval as NEOBOOL */
         err = eval_expr_bool (parse, &arg1, &arg2, expr->op_type, result);
       }
       else if ((arg1.op_type & (CS_TYPE_NUM | CS_TYPE_VAR_NUM)) ||
@@ -2349,7 +2357,7 @@ static NEOERR *var_eval (CSPARSE *parse, CSTREE *node, CSTREE **next)
     long int n_val;
 
     n_val = arg_eval_num (parse, &val);
-    snprintf (buf, sizeof(buf), "%ld", n_val);
+    _snprintf (buf, sizeof(buf), "%ld", n_val);
     err = parse->output_cb (parse->output_ctx, buf);
   }
   else
@@ -2400,7 +2408,7 @@ static NEOERR *lvar_eval (CSPARSE *parse, CSTREE *node, CSTREE **next)
     long int n_val;
 
     n_val = arg_eval_num (parse, &val);
-    snprintf (buf, sizeof(buf), "%ld", n_val);
+    _snprintf (buf, sizeof(buf), "%ld", n_val);
     err = parse->output_cb (parse->output_ctx, buf);
   }
   else
@@ -2418,7 +2426,7 @@ static NEOERR *lvar_eval (CSPARSE *parse, CSTREE *node, CSTREE **next)
       }
       else
       {
-	s = strdup(s);
+	s = _strdup(s);
 	if (s == NULL)
 	{
 	  return nerr_raise(NERR_NOMEM, "Unable to allocate memory for lvar_eval");
@@ -2455,7 +2463,7 @@ static NEOERR *linclude_eval (CSPARSE *parse, CSTREE *node, CSTREE **next)
     long int n_val;
 
     n_val = arg_eval_num (parse, &val);
-    snprintf (buf, sizeof(buf), "%ld", n_val);
+    _snprintf (buf, sizeof(buf), "%ld", n_val);
     err = parse->output_cb (parse->output_ctx, buf);
   }
   else
@@ -2504,7 +2512,7 @@ static NEOERR *alt_eval (CSPARSE *parse, CSTREE *node, CSTREE **next)
       long int n_val;
 
       n_val = arg_eval_num (parse, &val);
-      snprintf (buf, sizeof(buf), "%ld", n_val);
+      _snprintf (buf, sizeof(buf), "%ld", n_val);
       err = parse->output_cb (parse->output_ctx, buf);
     }
     else
@@ -2831,7 +2839,7 @@ static NEOERR *def_parse (CSPARSE *parse, int cmd, char *arg)
   char tmp[256];
   char name[256];
   int x = 0;
-  BOOL last = FALSE;
+  NEOBOOL last = FALSE;
 
   /* Since def doesn't get a new stack entry until after this is run,
    * setup a dumb var on the parse object to hold the future setting.
@@ -2873,7 +2881,7 @@ static NEOERR *def_parse (CSPARSE *parse, int cmd, char *arg)
   }
 
   macro = (CS_MACRO *) calloc (1, sizeof (CS_MACRO));
-  if (macro) macro->name = strdup(name);
+  if (macro) macro->name = _strdup(name);
   if (macro == NULL || macro->name == NULL)
   {
     dealloc_node(&node);
@@ -3294,7 +3302,7 @@ static NEOERR *set_eval (CSPARSE *parse, CSTREE *node, CSTREE **next)
       long int n_val;
 
       n_val = arg_eval_num (parse, &val);
-      snprintf (buf, sizeof(buf), "%ld", n_val);
+      _snprintf (buf, sizeof(buf), "%ld", n_val);
       if (set.s)
       {
 	err = var_set_value (parse, set.s, buf);
@@ -3333,7 +3341,7 @@ static NEOERR *loop_parse (CSPARSE *parse, int cmd, char *arg)
   NEOERR *err;
   CSTREE *node;
   CSARG *carg, *larg = NULL;
-  BOOL last = FALSE;
+  NEOBOOL last = FALSE;
   char *lvar;
   char *p, *a;
   char tmp[256];
@@ -3564,7 +3572,7 @@ NEOERR *cs_register_function(CSPARSE *parse, const char *funcname,
   if (csf == NULL)
     return nerr_raise(NERR_NOMEM,
 	"Unable to allocate memory to register function %s", funcname);
-  csf->name = strdup(funcname);
+  csf->name = _strdup(funcname);
   if (csf->name == NULL)
   {
     free(csf);
@@ -4241,7 +4249,7 @@ static NEOERR *dump_node (CSPARSE *parse, CSTREE *node, int depth, void *ctx,
 
   while (node != NULL)
   {
-    snprintf (buf, blen, "%*s %s ", depth, "", Commands[node->cmd].cmd);
+    _snprintf (buf, blen, "%*s %s ", depth, "", Commands[node->cmd].cmd);
     err = cb (ctx, buf);
     if (err) return nerr_pass (err);
     if (node->cmd)
@@ -4250,15 +4258,15 @@ static NEOERR *dump_node (CSPARSE *parse, CSTREE *node, int depth, void *ctx,
       {
 	if (node->arg1.op_type == CS_TYPE_NUM)
 	{
-	  snprintf (buf, blen, "%ld ", node->arg1.n);
+	  _snprintf (buf, blen, "%ld ", node->arg1.n);
 	}
 	else if (node->arg1.op_type == CS_TYPE_MACRO)
 	{
-	  snprintf (buf, blen, "%s ", node->arg1.macro->name);
+	  _snprintf (buf, blen, "%s ", node->arg1.macro->name);
 	}
 	else
 	{
-	  snprintf (buf, blen, "%s ", node->arg1.s);
+	  _snprintf (buf, blen, "%s ", node->arg1.s);
 	}
 	err = cb (ctx, buf);
 	if (err) return nerr_pass (err);
@@ -4267,11 +4275,11 @@ static NEOERR *dump_node (CSPARSE *parse, CSTREE *node, int depth, void *ctx,
       {
 	if (node->arg2.op_type == CS_TYPE_NUM)
 	{
-	  snprintf (buf, blen, "%ld", node->arg2.n);
+	  _snprintf (buf, blen, "%ld", node->arg2.n);
 	}
 	else
 	{
-	  snprintf (buf, blen, "%s", node->arg2.s);
+	  _snprintf (buf, blen, "%s", node->arg2.s);
 	}
 	err = cb (ctx, buf);
 	if (err) return nerr_pass (err);
@@ -4284,11 +4292,11 @@ static NEOERR *dump_node (CSPARSE *parse, CSTREE *node, int depth, void *ctx,
 	{
 	  if (arg->op_type == CS_TYPE_NUM)
 	  {
-	    snprintf (buf, blen, "%ld ", arg->n);
+	    _snprintf (buf, blen, "%ld ", arg->n);
 	  }
 	  else
 	  {
-	    snprintf (buf, blen, "%s ", arg->s);
+	    _snprintf (buf, blen, "%s ", arg->s);
 	  }
 	  err = cb (ctx, buf);
 	  if (err) return nerr_pass (err);
@@ -4300,7 +4308,7 @@ static NEOERR *dump_node (CSPARSE *parse, CSTREE *node, int depth, void *ctx,
     if (err) return nerr_pass (err);
     if (node->case_0)
     {
-      snprintf (buf, blen, "%*s %s\n", depth, "", "Case 0");
+      _snprintf (buf, blen, "%*s %s\n", depth, "", "Case 0");
       err = cb (ctx, buf);
       if (err) return nerr_pass (err);
       err = dump_node (parse, node->case_0, depth+1, ctx, cb, buf, blen);
@@ -4308,7 +4316,7 @@ static NEOERR *dump_node (CSPARSE *parse, CSTREE *node, int depth, void *ctx,
     }
     if (node->case_1)
     {
-      snprintf (buf, blen, "%*s %s\n", depth, "", "Case 1");
+      _snprintf (buf, blen, "%*s %s\n", depth, "", "Case 1");
       err = cb (ctx, buf);
       if (err) return nerr_pass (err);
       err = dump_node (parse, node->case_1, depth+1, ctx, cb, buf, blen);

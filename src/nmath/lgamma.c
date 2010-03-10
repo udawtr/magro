@@ -61,6 +61,15 @@
 #define M_LN_SQRT_PId2	0.225791352644727432363097614947	/* log(sqrt(pi/2)) */
 #endif
 
+#ifdef __VC
+double trunc(double x)
+{
+	int t;
+	t = (int)x;
+	return (double)t;
+}
+#endif
+
 double lgammafn(NMATH_STATE *state, double x)
 {
     double ans, y, sinpiy;

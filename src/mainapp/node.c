@@ -270,8 +270,8 @@ int node_checkancestorsobserved(NODE* node)
 
 int node_isdescendant(NODE* node, NODE* target)
 {
-	assert(node!=NULL && target!=NULL);
 	int i;
+	assert(node!=NULL && target!=NULL);
 	if( node == target ) return 1;
 	if( node->children != NULL )
 	{
@@ -285,8 +285,8 @@ int node_isdescendant(NODE* node, NODE* target)
 
 int node_isancestor(NODE* node, NODE* target)
 {
-	assert(node!=NULL && target!=NULL);
 	int i;
+	assert(node!=NULL && target!=NULL);
 	if( node == target ) return 1;
 	if( node->parents != NULL )
 	{

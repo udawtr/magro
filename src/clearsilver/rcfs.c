@@ -13,17 +13,25 @@
  * revision-controlled file system (RCFS) with meta-info storage
  */
 
+#ifndef __VC
 #include "cs_config.h"
+#endif
 
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#ifndef __VC
 #include <dirent.h>
+#else
+#include "win32\dirent.h"
+#endif
 
 #include "neo_misc.h"
 #include "neo_err.h"
@@ -120,6 +128,7 @@ NEOERR * rcfs_load (const char *path, int version, char **data)
   return nerr_pass (err);
 }
 
+#ifndef __VC
 NEOERR * rcfs_save (const char *path, const char *data, const char *user, 
                     const char *log)
 {
@@ -185,6 +194,7 @@ NEOERR * rcfs_save (const char *path, const char *data, const char *user,
   hdf_destroy (&meta);
   return nerr_pass (err);
 }
+#endif
 
 NEOERR * rcfs_lock (const char *path, int *lock)
 {

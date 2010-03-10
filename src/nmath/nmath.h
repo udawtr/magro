@@ -23,9 +23,21 @@
 
 #include <math.h>
 
+#ifndef __VC
 #define NaN		0xfff8000000000000
 #define NEGINF	0xfff0000000000000
 #define POSINF	0x7ff0000000000000
+#else
+#define NAN	NaN
+#define INFINITY POSINF
+extern volatile double NaN;
+extern volatile double NEGINF;
+extern volatile double POSINF;
+#include <float.h>
+#define isnan(x)	_isnan(x)
+#define isinf(x)	(!_finite(x))
+#define isfinite(x)	_finite(x)
+#endif
 #define uniform unif_rand
 
 struct _RGAMMA_STATE

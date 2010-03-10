@@ -64,8 +64,11 @@ void constant_node_free(CONSTANT_NODE* constant)
 
 char* constant_node_tostring(CONSTANT_NODE* constant)
 {
+	char* buf;
+
 	assert(constant != NULL);
-	char* buf = (char*)GC_MALLOC(sizeof(char) * 255);
+
+	buf  = (char*)GC_MALLOC(sizeof(char) * 255);
 	if( constant->name != NULL )
 		sprintf(buf, "%s", constant->name);
 	else
@@ -75,12 +78,13 @@ char* constant_node_tostring(CONSTANT_NODE* constant)
 
 char* constant_node_toenvstring(CONSTANT_NODE* constant)
 {
+	char* buf;
 	assert(constant != NULL);
-	char* buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * 255);
+	buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * 255);
 	if( constant->name != NULL )
 	{
-		sprintf(buf, "env[index].%s", constant->name);
 		int i,l;
+		sprintf(buf, "env[index].%s", constant->name);
 		l = strlen(constant->name);
 		for ( i = 11 ; i < l+11 ; i++ )
 		{

@@ -1,5 +1,4 @@
 %{
-#include <gc.h>
 #include "parser_rdata.h"
 %}
 

@@ -8,16 +8,23 @@
 
 #include "cs_config.h"
 
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __VC
 #include <sys/wait.h>
+#else
+#include <process.h>
+#endif
 
 #include "neo_misc.h"
 #include "neo_err.h"
 #include "filter.h"
 
 
+#ifndef __VC
 NEOERR *filter_wait (pid_t pid, int options, int *exitcode)
 {
   int r;
@@ -51,6 +58,40 @@ NEOERR *filter_wait (pid_t pid, int options, int *exitcode)
   return nerr_raise(NERR_ASSERT, "ERROR: waitpid(%d, %d) returned (%d, %d)", 
                     pid, options, rpid, r);
 }
+#else
+NEOERR *filter_wait (pid_t pid, int options, int *exitcode)
+{
+  int termstat;
+  pid_t rpid;
+  
+  rpid = _cwait (&termstat,pid, options);
+  if ( rpid != -1 )
+  {
+    if (exitcode)
+    {
+      *exitcode = termstat;
+      /* If they're asking for the exit code, we don't generate an error */
+      return STATUS_OK;
+    }
+    if (termstat == 0) return STATUS_OK;
+    else return nerr_raise(NERR_SYSTEM, "Child %d returned status %d:", rpid, 
+                           termstat);
+  }
+  //if (WIFSIGNALED(r))
+  //{
+  //  r = WTERMSIG(r);
+  //  return nerr_raise(NERR_SYSTEM, "Child %d died on signal %d:", rpid, r);
+  //}
+  //if (WIFSTOPPED(r))
+  //{
+  //  r = WSTOPSIG(r);
+  //  return nerr_raise(NERR_SYSTEM, "Child %d stopped on signal %d:", rpid, r);
+  //}
+  
+  return nerr_raise(NERR_ASSERT, "ERROR: _cwait(%d, %d) returned (%d, %d)", 
+                    pid, options, rpid, termstat);
+}
+#endif
 
 NEOERR *filter_create_fd (const char *cmd, int *fdin, int *fdout, int *fderr, 
                           pid_t *pid)

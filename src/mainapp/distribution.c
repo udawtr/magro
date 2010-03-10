@@ -98,79 +98,88 @@ double distribution_random(enum DISTTYPE name, double* par, unsigned int npar, N
 
 double dbin_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE* ms)
 {
+	double size, prob;
 	assert(par!=NULL && npar>=2);
-	double size = par[1];
-	double prob = par[0];
+	size = par[1];
+	prob = par[0];
 	return dbinom(ms, x, size, prob, give_log);
 }
 
 char* dbin_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
 {
+	char *size, *prob, *buff;
 	assert(par!=NULL && npar>=2);
-	char* size = par[1];
-	char* prob = par[0];
-	char* buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(size) + strlen(prob) + 20));
+	size = par[1];
+	prob = par[0];
+	buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(size) + strlen(prob) + 20));
 	sprintf(buff, "dbinom(state,%s, %s, %s, %d)", x, size, prob, give_log);
 	return buff;
 }
 
 double dbin_random(double* par, unsigned int npar, NMATH_STATE *ms)
 {
+	double size, prob;
 	assert(par!=NULL && npar>=2);
-	double size = par[1];
-	double prob = par[0];
+	size = par[1];
+	prob = par[0];
 	return rbinom(ms, size, prob);
 }
 
 double dgamma_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms)
 {
+	double shape, scale;
 	assert(par!=NULL && npar>=2);
-	double shape = par[0];
-	double scale = 1.0 / par[1];
+	shape = par[0];
+	scale = 1.0 / par[1];
 	return dgamma(ms, x, shape, scale, give_log);
 }
 
 char* dgamma_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
 {
+	char *shape, *_scale, *buff;
 	assert(par!=NULL && npar>=2);
-	char* shape= par[0];
-	char* _scale = par[1];
-	char* buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(shape) + strlen(_scale) + 30));
+	shape= par[0];
+	_scale = par[1];
+	buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(shape) + strlen(_scale) + 30));
 	sprintf(buff, "dgamma(state, %s, %s, 1.0/(%s), %d)", x, shape, _scale, give_log);
 	return buff;
 }
 
 double dgamma_random(double *par, unsigned int npar, NMATH_STATE *ms)
 {
+	double shape, scale;
 	assert(par!=NULL && npar>=2);
-	double shape = par[0];
-	double scale = 1.0 / par[1];
+	shape = par[0];
+	scale = 1.0 / par[1];
 	return rgamma(ms, shape, scale);
 }
 
 double dnorm_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms)
 {
+	double mu, sigma;
 	assert(par!=NULL && npar>=2);
-	double mu = par[0];
-	double sigma  = 1.0 / sqrt(par[1]);
+	mu = par[0];
+	sigma  = 1.0 / sqrt(par[1]);
 	return dnorm(ms, x, mu, sigma, give_log);
 }
 
 char* dnorm_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
 {
+	char *mu, *_sigma, *buff;
 	assert(par!=NULL && npar>=2);
-	char* mu= par[0];
-	char* _sigma= par[1];
-	char* buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(mu) + strlen(_sigma) + 40));
+	mu= par[0];
+	_sigma= par[1];
+	buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(mu) + strlen(_sigma) + 40));
 	sprintf(buff, "dnorm(state, %s, %s, 1.0/sqrt(%s), %d)", x, mu, _sigma, give_log);
 	return buff;
 }
 
 double dnorm_random(double *par, unsigned int npar, NMATH_STATE *ms)
 {
+	double mu, sigma;
 	assert(par!=NULL && npar>=2);
-	double mu = par[0];
-	double sigma = 1.0 / sqrt(par[1]);
+	mu = par[0];
+	sigma = 1.0 / sqrt(par[1]);
 	return rnorm(ms, mu, sigma);
 }
 
@@ -257,23 +266,24 @@ double dcat_loglikelihood(double *x, unsigned int length, double* par, unsigned 
 
 char* dcat_toenvstring_loglikelihood(char** x, unsigned int length, char** par, unsigned int npar)
 {
-	unsigned int i;
+	unsigned int i,l, sumpl;
 	unsigned int y=0;
+	char *sump, *s;
 
 	sscanf(x[0], "%u", &y);	
 	assert(!(y < 1 || y > npar ));
 
-	int sumpl = 0;
+	sumpl = 0;
 	for( i = 0 ; i < npar ; i++ ) sumpl += strlen(par[i]);
-	char* sump = GC_MALLOC_ATOMIC(sizeof(char)*(sumpl+npar*3));
+	sump = GC_MALLOC_ATOMIC(sizeof(char)*(sumpl+npar*3));
 	sump[0] = '\0';
 	for( i = 0 ; i < npar-1 ; i++ ){ strcat(sump,"("); strcat(sump, par[i]); strcat(sump,")+");}
 	strcat(sump,"(");
 	strcat(sump,par[i]);
 	strcat(sump,")");
 	
-	int l = strlen(par[y-1]+sumpl+20);
-	char* s = GC_MALLOC_ATOMIC(sizeof(char)*l);
+	l = strlen(par[y-1]+sumpl+20);
+	s = GC_MALLOC_ATOMIC(sizeof(char)*l);
 	sprintf(s, "log(%s)-log(%s)", par[y-1], sump);	
 
 	GC_FREE(sump);

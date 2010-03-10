@@ -39,12 +39,14 @@
 
 STOCHASTIC_NODE* stochastic_node_create(MODEL* m)
 {
-	assert(m!=NULL);
 	STOCHASTIC_NODE* snode;
+
+	assert(m!=NULL);
 	snode = (STOCHASTIC_NODE*)GC_MALLOC(sizeof(STOCHASTIC_NODE));
 	node_init(&snode->node, m);
 	snode->node.nodetype = N_STOCHASTIC;
 	snode->value = 0.0;
+
 	return snode;
 }
 
@@ -71,7 +73,7 @@ void stochastic_node_setvalue(STOCHASTIC_NODE* snode, double value)
 
 char* stochastic_node_toenvstring_logdensity(STOCHASTIC_NODE* snode)
 {
-    char **p, **param;
+    char **p, **param, *s;
     int i,n;
 
     assert(snode != NULL);
@@ -86,7 +88,7 @@ char* stochastic_node_toenvstring_logdensity(STOCHASTIC_NODE* snode)
         param[i] = node_toenvstring(snode->node.parents->items[i]);
     }
    
-    char* s =distribution_toenvstring_loglikelihood(snode->name, p, 1, param, (unsigned int)n);
+    s =distribution_toenvstring_loglikelihood(snode->name, p, 1, param, (unsigned int)n);
 //	printf("stochastic_node_toenvstring_logdensity: [%s]\n", s);
 	return s;
 }
@@ -185,10 +187,12 @@ char* stochastic_node_tostring(STOCHASTIC_NODE* snode)
 
 char* stochastic_node_toenvstring(STOCHASTIC_NODE* snode)
 {
-    assert(snode!=NULL);
+	NODE* sym;
+	
+	assert(snode!=NULL);
     assert(snode->node.model != NULL);
     
-    NODE* sym = nodedic_findsymbol(snode->node.model->relations, (NODE*)snode);
+    sym = nodedic_findsymbol(snode->node.model->relations, (NODE*)snode);
     assert(sym != NULL);
     
     return node_toenvstring(sym);

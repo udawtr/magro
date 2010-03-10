@@ -22,7 +22,11 @@
 #ifndef __CHAIN_H__
 #define __CHAIN_H__
 
+#ifndef __VC
 #include <pthread.h>
+#else
+#include <process.h>
+#endif
 #include "compiler.h"
 #include "../parser_bugs/bugs_node.h"
 #include "../nmath/nmath.h"
@@ -31,6 +35,10 @@
 
 typedef struct _CHAIN CHAIN;
 typedef struct _CHAINCORE CHAINCORE;
+
+#ifdef __VC
+typedef uintptr_t pthread_t;
+#endif
 
 struct _CHAINCORE
 {

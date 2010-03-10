@@ -67,7 +67,7 @@ void compiler_free(COMPILER* c)
 
 void compiler_buildrelations(COMPILER* c, BUGS_NODE* node)
 {
-	int j;
+	int i,j,n;
 	BUGS_NODE* rel;
 	BUGS_NODE* counter;
 	BUGS_NODE* relations;
@@ -145,7 +145,7 @@ void compiler_buildrelations(COMPILER* c, BUGS_NODE* node)
 			break;
 		}
 
-    int i,n = c->model->relations->count;
+    n = c->model->relations->count;
     for( i = 0 ; i < n ; i++ )
     {
         NODE_CHECK(c->model->relations->symbols[i]);
@@ -302,10 +302,11 @@ void compiler_setrinit(COMPILER* c, RDATA_NODE* rnode)
 	RDATA_NODE* rvalue;
 	char* name;
 	ARRAY_NODE* array;
-	CONSTANT_NODE* constant;;
-	char* buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * 255);
+	CONSTANT_NODE* constant;
+	char* buf;
 	
 	assert( rnode != NULL && rnode->nodetype == RDN_ASSIGN );	
+	buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * 255);
 
 	n = rnode->params->count;
 	for( i = 0 ; i < n ; i++ )
@@ -337,26 +338,30 @@ void compiler_setrinit(COMPILER* c, RDATA_NODE* rnode)
 						constant_node_setname(constant, buf);
 						array_node_add(array, NP(constant));
 						
-						NODE* node = nodedic_findnode_byliteral(c->model->relations, buf);
-						if( node != NULL )//&& node->nodetype == N_STOCHASTIC )
 						{
-//							printf("compiler_setrinit: set initial value of %s to %f\n", buf, rvalue->values->items[j]);
-							assert(node->nodetype == N_STOCHASTIC);
-							stochastic_node_setvalue((STOCHASTIC_NODE*)node, rvalue->values->items[j]);
-							node_setinitialized(node);
+							NODE* node = nodedic_findnode_byliteral(c->model->relations, buf);
+							if( node != NULL )//&& node->nodetype == N_STOCHASTIC )
+							{
+	//							printf("compiler_setrinit: set initial value of %s to %f\n", buf, rvalue->values->items[j]);
+								assert(node->nodetype == N_STOCHASTIC);
+								stochastic_node_setvalue((STOCHASTIC_NODE*)node, rvalue->values->items[j]);
+								node_setinitialized(node);
+							}
+							else
+							{
+								printf("compiler_setrinit: cannot find a stochastic node named %s\n", buf);
+							}	
 						}
-						else
-						{
-							printf("compiler_setrinit: cannot find a stochastic node named %s\n", buf);
-						}	
 					}
 				}
 			}
 
-			int index[1];
-			index[0] = array_node_getsize(array);
-			array_node_setdimension(array, &index[0], 1);
-			env_setsymbol(c->env, name, NP(array));
+			{
+				int index[1];
+				index[0] = array_node_getsize(array);
+				array_node_setdimension(array, &index[0], 1);
+				env_setsymbol(c->env, name, NP(array));
+			}
 		}
 	}
 
@@ -445,11 +450,12 @@ void compiler_setrdata(COMPILER* c, RDATA_NODE* rnode)
 		n = c->env->count;
 		for( i = 0 ; i < n ; i++ )
 		{
+			int l = array_node_getsize(array);
+			int idx[3] = {0,0,0};
+
 			printf("%s = [", c->env->names[i]);
 			array = (ARRAY_NODE*)c->env->nodes[i];
 			assert(array->node.nodetype == N_ARRAY);
-			int l = array_node_getsize(array);
-			int idx[3] = {0,0,0};
 			for( j = 0 ; j < l ; j++ )
 			{
 				idx[0] = j;
@@ -468,9 +474,10 @@ void __compiler_resolvesymbols(NODE**, NODE**, int, NODE**);
 
 void __compiler_resolvesymbols(NODE** pnode, NODE** symbols, int nsymbols, NODE** targets)
 {
-	assert(pnode!=NULL && symbols!=NULL);
 	int i,n;
 	NODE* node = *pnode;
+
+	assert(pnode!=NULL && symbols!=NULL);
 
 	if( node->nodetype != N_SYMBOL )
 	{
@@ -499,12 +506,12 @@ void __compiler_resolvesymbols(NODE** pnode, NODE** symbols, int nsymbols, NODE*
 
 void compiler_resolvesymbols(COMPILER* c)
 {
-	assert(c!=NULL);
-	
 	int i, n;
 	NODE** symbols;
 	NODE** targets;
 
+	assert(c!=NULL);
+	
 	n = c->model->relations->count;
 	symbols = (NODE**)GC_MALLOC(sizeof(NODE*) * n); 
 	targets = (NODE**)GC_MALLOC(sizeof(NODE*) * n);
@@ -718,6 +725,7 @@ void compiler_serializegraph(COMPILER* c, NODELIST* graph)
 
 int __compiler_sampler_compare(const void *a, const void *b)
 {
+	int inda, indb;
 	SAMPLER* sa = *(SAMPLER**)a;
 	SAMPLER* sb = *(SAMPLER**)b;
 
@@ -726,8 +734,8 @@ int __compiler_sampler_compare(const void *a, const void *b)
 	NODE_CHECK(sa->snode);
 	NODE_CHECK(sb->snode);
 
-	int inda = NP(sa->snode)->order;
-	int indb = NP(sb->snode)->order;
+	inda = NP(sa->snode)->order;
+	indb = NP(sb->snode)->order;
 
 	return inda - indb;
 }
@@ -766,13 +774,15 @@ void compiler_buildsamplers(COMPILER* c, NODELIST* graph)
 
 void compiler_initialize(COMPILER* c, NMATH_STATE *ms)
 {
+	int i,n;
+	NODE* node;
+
 	assert(c!=NULL);
 
 	//printf("***BEGIN INITIALIZE***\n");
 	//printf("graph->count = %d\n", c->graph->count);
 
-    int i,n = c->graph->count;
-	NODE* node;
+    n = c->graph->count;
     for( i = 0 ; i < n ; i++ )
     {
 		node = c->graph->items[i];
@@ -861,8 +871,9 @@ void compiler_compile(COMPILER* c,  BUGS_NODE* pnode)
 
 	if( mode_verbose > 1 )
 	{
-		printf("***BEGIN DUMP SAMPLERS***\n");
 		SAMPLERLIST* slist = c->model->samplers;
+
+		printf("***BEGIN DUMP SAMPLERS***\n");
 	    for( i = 0 ; i < slist->count ; i++ )
 		{
 	   		list = slist->items[i]->stochasticdescendant;
@@ -880,7 +891,7 @@ void compiler_savehdf(COMPILER* c, FILE* fp, char** monitor, int nmonitor, int b
 {
     //NODELIST* graph;
     NODELIST* list;
-    int i,j,n;
+    int i,j,l,n;
 	SAMPLERLIST* slist = c->model->samplers;
 	
 	// DUMP HDF
@@ -902,7 +913,7 @@ void compiler_savehdf(COMPILER* c, FILE* fp, char** monitor, int nmonitor, int b
 		fprintf(fp,"\t\t}\n");
 		fprintf(fp,"\t\titems {\n");
         assert(array->node.nodetype == N_ARRAY);
-        int l = array_node_getsize(array);
+        l = array_node_getsize(array);
         for( j = 0 ; j < l ; j++ )
         {
             //constant = (CONSTANT_NODE*)array_node_getnode(array,j);
@@ -949,26 +960,28 @@ void compiler_savehdf(COMPILER* c, FILE* fp, char** monitor, int nmonitor, int b
 	fprintf(fp, "\tthin = %d\n", thin);
 	fprintf(fp, "}\n");
 
-    NODE* monitor_nodes[100];
-    for( i = 0 ; i < nmonitor ; i++ )
-    {
-        NODE* node = nodedic_findnode_byliteral(c->model->relations, monitor[i]);
-        monitor_nodes[i] = node;
-        if( node == NULL )
-        {
-            printf("cannot find monitoring variable named '%s'\n", monitor[i]);
-            exit(99);
-        }
-    }
+	{
+		NODE* monitor_nodes[100];
+		for( i = 0 ; i < nmonitor ; i++ )
+		{
+			NODE* node = nodedic_findnode_byliteral(c->model->relations, monitor[i]);
+			monitor_nodes[i] = node;
+			if( node == NULL )
+			{
+				printf("cannot find monitoring variable named '%s'\n", monitor[i]);
+				exit(99);
+			}
+		}
 
-	fprintf(fp, "monitors {\n");
-    for( i = 0 ; i < nmonitor ; i++ )
-    {
-        fprintf(fp, "\t%d {\n", i );
-        fprintf(fp, "\t\tname= %s\n", monitor[i] );
-        fprintf(fp, "\t\tsymbol = %s\n", node_toenvstring(monitor_nodes[i]) );
-        fprintf(fp, "\t}\n");
+		fprintf(fp, "monitors {\n");
+		for( i = 0 ; i < nmonitor ; i++ )
+		{
+			fprintf(fp, "\t%d {\n", i );
+			fprintf(fp, "\t\tname= %s\n", monitor[i] );
+			fprintf(fp, "\t\tsymbol = %s\n", node_toenvstring(monitor_nodes[i]) );
+			fprintf(fp, "\t}\n");
+		}
+		fprintf(fp, "}\n");
 	}
-	fprintf(fp, "}\n");
 }
  

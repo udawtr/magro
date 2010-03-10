@@ -19,13 +19,29 @@
  */
 
 #include <stdio.h>
+#ifndef __VC
 #include <sys/resource.h>
+#endif
 #include <time.h>
 #include <assert.h>
 #include "nmath.h"
 
+#ifdef __VC
+volatile double NAN;
+volatile double POSINF;
+volatile double NEGINF;
+#endif
+
 void NMath_Init(NMATH_STATE *state)
 {
+#ifdef __VC
+	double zero = 0.0;
+	double one = 1.0;
+	NAN = zero/zero;
+	POSINF = one/zero;
+	NEGINF = -one/zero;
+#endif
+
 	assert(state!=NULL);
 
 	RNG_Init(state, (int)time(NULL));
@@ -42,6 +58,7 @@ void NMath_Init(NMATH_STATE *state)
 	state->gammafn.xmax = 0.0;
 	state->gammafn.xsml = 0.0;
 	state->gammafn.dxrel = 0.0;
+
 }
 
 

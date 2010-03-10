@@ -572,7 +572,6 @@ int rdata_flex_debug = 0;
 char *rdatatext;
 #line 1 "lexer_rdata.l"
 #line 2 "lexer_rdata.l"
-#include <gc.h>
 #include "parser_rdata.h"
 
 
@@ -589,7 +588,7 @@ char *rdatatext;
  * down here because we want the user's section 1 to have been scanned first.
  * The user has a chance to override it with an option.
  */
-#include <unistd.h>
+//#include <unistd.h>
 #endif
 
 #ifndef YY_EXTRA_TYPE

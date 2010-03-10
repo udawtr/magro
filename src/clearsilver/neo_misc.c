@@ -15,31 +15,35 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
+#ifndef __VC
 #include <sys/time.h>
+#endif
 #include <sys/types.h>
 #include <string.h>
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include "neo_misc.h"
 #include "neo_err.h"
 
 void ne_vwarn (const char *fmt, va_list ap)
 {
-  char tbuf[20];
+  //char tbuf[20];
   char buf[1024];
   struct tm my_tm;
   time_t now;
   int len;
 
-  now = time(NULL);
+  //now = time(NULL);
 
-  localtime_r(&now, &my_tm);
+  //localtime_r(&now, &my_tm);
 
-  strftime(tbuf, sizeof(tbuf), "%m/%d %T", &my_tm);
+  //strftime(tbuf, sizeof(tbuf), "%m/%d %T", &my_tm);
 
   vsnprintf (buf, sizeof(buf), fmt, ap);
   len = strlen(buf);
   while (len && isspace (buf[len-1])) buf[--len] = '\0';
-  fprintf (stderr, "[%s] %s\n", tbuf, buf);
+  fprintf (stderr, "%s\n", buf);
 }
 
 void ne_warn (const char *fmt, ...)
@@ -151,6 +155,7 @@ double ne_timef (void) {
 
 #else 
 
+#ifndef __VC
 double ne_timef (void)
 {
   double f = 0;
@@ -164,6 +169,7 @@ double ne_timef (void)
   }
   return f;
 }
+#endif
 #endif
 
 static const UINT32 CRCTable[256] = {

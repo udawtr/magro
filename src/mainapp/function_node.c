@@ -239,8 +239,9 @@ double function_node_getvalue(FUNCTION_NODE* fnode)
 
 int function_node_isbinary(FUNCTION_NODE* fnode)
 {
+	enum FUNCTYPE name;
 	assert( fnode != NULL );
-	enum FUNCTYPE name = fnode->name;
+	name = fnode->name;
 	if( FUNC_BINARY_MIN <= name && name <= FUNC_BINARY_MAX ) return 1;
 	return 0;
 }

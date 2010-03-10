@@ -132,7 +132,7 @@ NEOERR *nerr_raise_errnof (const char *func, const char *file, int lineno,
   va_end(ap);
 
   l = strlen(err->desc);
-  snprintf (err->desc + l, sizeof(err->desc)-l, ": [%d] %s", errno, 
+  _snprintf (err->desc + l, sizeof(err->desc)-l, ": [%d] %s", errno, 
       strerror (errno));
 
   err->error = error;
@@ -217,7 +217,7 @@ void nerr_log_error (NEOERR *err)
       if (err->error == 0)
       {
 	err_name = buf;
-	snprintf (buf, sizeof (buf), "Unknown Error");
+	_snprintf (buf, sizeof (buf), "Unknown Error");
       }
       else
       {
@@ -225,7 +225,7 @@ void nerr_log_error (NEOERR *err)
 	if (r != STATUS_OK)
 	{
 	  err_name = buf;
-	  snprintf (buf, sizeof (buf), "Error %d", err->error);
+	  _snprintf (buf, sizeof (buf), "Error %d", err->error);
 	}
       }
 
@@ -270,7 +270,7 @@ void nerr_error_string (NEOERR *err, STRING *str)
       if (err->error == 0)
       {
 	err_name = buf;
-	snprintf (buf, sizeof (buf), "Unknown Error");
+	_snprintf (buf, sizeof (buf), "Unknown Error");
       }
       else
       {
@@ -278,7 +278,7 @@ void nerr_error_string (NEOERR *err, STRING *str)
 	if (r != STATUS_OK)
 	{
 	  err_name = buf;
-	  snprintf (buf, sizeof (buf), "Error %d", err->error);
+	  _snprintf (buf, sizeof (buf), "Error %d", err->error);
 	}
       }
 
@@ -316,7 +316,7 @@ void nerr_error_traceback (NEOERR *err, STRING *str)
       if (err->error == 0)
       {
 	err_name = buf;
-	snprintf (buf, sizeof (buf), "Unknown Error");
+	_snprintf (buf, sizeof (buf), "Unknown Error");
       }
       else
       {
@@ -324,23 +324,23 @@ void nerr_error_traceback (NEOERR *err, STRING *str)
 	if (r != STATUS_OK)
 	{
 	  err_name = buf;
-	  snprintf (buf, sizeof (buf), "Error %d", err->error);
+	  _snprintf (buf, sizeof (buf), "Error %d", err->error);
 	}
       }
 
-      snprintf (buf2, sizeof(buf2), 
+      _snprintf (buf2, sizeof(buf2), 
 	  "  File \"%s\", line %d, in %s()\n%s: %s\n", err->file, 
 	  err->lineno, err->func, err_name, err->desc);
       string_append(str, buf2);
     }
     else
     {
-      snprintf (buf2, sizeof(buf2), "  File \"%s\", line %d, in %s()\n", 
+      _snprintf (buf2, sizeof(buf2), "  File \"%s\", line %d, in %s()\n", 
 	  err->file, err->lineno, err->func);
       string_append(str, buf2);
       if (err->desc[0])
       {
-	snprintf (buf2, sizeof(buf2), "    %s\n", err->desc);
+	_snprintf (buf2, sizeof(buf2), "    %s\n", err->desc);
 	string_append(str, buf2);
       }
     }

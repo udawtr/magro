@@ -27,6 +27,11 @@
 
 #define CODEGEN_DIRNAME	"codegen"
 
+#ifdef __VC
+#include <windows.h>
+#define PATH_MAX _MAX_PATH
+#endif
+
 extern int mode_verbose;
 extern int mode_codegen;
 extern int mode_thread;

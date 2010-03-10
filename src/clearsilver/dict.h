@@ -17,11 +17,11 @@
 __BEGIN_DECLS
 
 typedef struct _dictCtx *dictCtx;
-typedef BOOL (*dictCleanupFunc)(char *id, void *value, void *rock);
+typedef NEOBOOL (*dictCleanupFunc)(char *id, void *value, void *rock);
 typedef void (*dictFreeValueFunc)(void *value, void *rock);
 
-NEOERR *dictCreate(dictCtx *dict, BOOL threaded, UINT32 root, UINT32 maxLevel, 
-    UINT32 flushLimit, BOOL useCase, 
+NEOERR *dictCreate(dictCtx *dict, NEOBOOL threaded, UINT32 root, UINT32 maxLevel, 
+    UINT32 flushLimit, NEOBOOL useCase, 
     dictFreeValueFunc freeValue, void *freeRock);
 /*
  * Function:    dictCreate - create new dictionary.
@@ -51,7 +51,7 @@ void dictDestroy(dictCtx dict);
  * MT-Level:    Safe for unique <dict>.
  */
 
-BOOL dictRemove(dictCtx dict, const char *id);
+NEOBOOL dictRemove(dictCtx dict, const char *id);
 /*
  * Function:    dictRemove - remove item from dictionary.
  * Description: Removes item identified by <id> from <dict>.

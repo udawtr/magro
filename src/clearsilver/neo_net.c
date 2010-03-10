@@ -11,6 +11,7 @@
 
 #include "cs_config.h"
 
+#ifndef __VC
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/time.h>
@@ -18,6 +19,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
+#endif
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>

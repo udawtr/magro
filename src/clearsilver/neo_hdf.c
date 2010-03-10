@@ -12,7 +12,9 @@
 #include "cs_config.h"
 
 #include <stdlib.h>
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
@@ -38,6 +40,7 @@
  * it, we use the HDF node itself as the key, and have specific
  * comp/hash functions which just use the name/name_len as the key.
  */
+
 
 static int hash_hdf_comp(const void *a, const void *b)
 {
@@ -512,7 +515,7 @@ void _merge_attr (HDF_ATTR *dest, HDF_ATTR *src)
 {
   HDF_ATTR *da, *ld;
   HDF_ATTR *sa, *ls;
-  BOOL found;
+  NEOBOOL found;
 
   sa = src;
   ls = src;
@@ -838,7 +841,11 @@ NEOERR* hdf_set_int_value (HDF *hdf, const char *name, int value)
 {
   char buf[256];
 
+#ifndef __VC
   snprintf (buf, sizeof(buf), "%d", value);
+#else
+  sprintf (buf, "%d", value);
+#endif
   return nerr_pass(_set_value (hdf, name, buf, 1, 1, 0, NULL, NULL));
 }
 
@@ -1296,7 +1303,11 @@ NEOERR *hdf_write_file_atomic (HDF *hdf, const char *path)
   char tpath[_POSIX_PATH_MAX];
   static int count = 0;
 
+#ifndef __VC
   snprintf(tpath, sizeof(tpath), "%s.%5.5f.%d", path, ne_timef(), count++);
+#else
+  sprintf(tpath, "%s.%d", path, count++);
+#endif
 
   fp = fopen(tpath, "w");
   if (fp == NULL)
@@ -1794,8 +1805,12 @@ NEOERR* hdf_search_path (HDF *hdf, const char *path, char *full)
       paths;
       paths = hdf_obj_next (paths))
   {
+#ifndef __VC
     snprintf (full, _POSIX_PATH_MAX, "%s/%s", hdf_obj_value(paths), path);
-    errno = 0;
+#else
+    sprintf (full, "%s\\%s", hdf_obj_value(paths), path);
+#endif
+	  errno = 0;
     if (stat (full, &s) == -1)
     {
       if (errno != ENOENT)

@@ -24,15 +24,25 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef __VC
 #include <unistd.h>
 #include <dirent.h>
+#else
+#include "win32\dirent.h"
+#endif
 #include "compiler.h"
 #include "../nmath/nmath.h"
 #include "../clearsilver/ClearSilver.h"
 #include "conf.h"
+#ifndef __VC
 #include <pthread.h>
+#else
+#include <process.h>
+#endif
 #include "chain.h"
+#ifndef __VC
 #include "config.h"
+#endif
 
 int mode_verbose = 0;
 int mode_codegen = 0;
@@ -76,18 +86,21 @@ char* gettemplatedir()
 	if( chdir("ansic") !=0 ) { if( mode_verbose) printf("NG\n"); return NULL; }
 	if( mode_verbose ) printf("OK\n");	
 
-	char* buf = GC_MALLOC_ATOMIC(sizeof(char) * 1024);
-	if( getcwd(buf, 1024) != NULL )
 	{
-		return buf;
+		char* buf = GC_MALLOC_ATOMIC(sizeof(char) * 1024);
+		if( getcwd(buf, 1024) != NULL )
+		{
+			return buf;
+		}
+		return NULL;
 	}
-	return NULL;
 }
 
 void savesrc(char* templatedir, char* csfname, char* outfname, HDF* hdf)
 {
 	CSPARSE* parse;
 	NEOERR* err;
+	FILE* fp;
 
 	nerr_init();
 
@@ -102,7 +115,6 @@ void savesrc(char* templatedir, char* csfname, char* outfname, HDF* hdf)
 	chdir(boot_path);
 	chdir(CODEGEN_DIRNAME);
 	printf("writing %s ... ", outfname);
-	FILE* fp;
 	fp = fopen(outfname, "w");
     if( fp != NULL )
 	{
@@ -136,13 +148,17 @@ void saveCODA(CHAIN* chain, int nmonitor, char** monitor_list)
    
 	for( j = 0 ; j < chain->nchain; j++ )
 	{     
+		CHAINCORE* core;
+		double* monitor_buff;
+		int monitor_count;
+
 		sprintf(fname, "CODAchain%d.txt", j+1);
 		fp = fopen(fname, "w");
 		if( fp == NULL ) { printf("failed to create new file %s\n", fname); exit(32); }
         
-		CHAINCORE* core = &chain->core[j];
-        double* monitor_buff = core->monitor_buff;
-        int monitor_count = core->monitor_counter;
+		core = &chain->core[j];
+        monitor_buff = core->monitor_buff;
+        monitor_count = core->monitor_counter;
         for( n = 0 ; n < nmonitor ; n++ )
         {
         	for( i = 0 ; i < monitor_count ; i++ )
@@ -165,6 +181,12 @@ int main(int argc, char** argv)
 	char* monitor_list[100];
 	CHAIN chain;
 	int i;
+	int ret;	
+	int j,n;
+    //SAMPLERLIST* slist = c->model->samplers;
+    NODE* node;
+	NODE* monitor_nodes[100];
+	FILE* fp;
 
 	strcpy(bin_path, argv[0]);
 	for( i = strlen(bin_path)-1 ; i >= 0 ; i-- )
@@ -322,7 +344,6 @@ int main(int argc, char** argv)
 
 	chain_init(&chain, nchain);
 	
-	int ret;	
 	printf("reading model in %s ... ", bugname);
 	ret = chain_loadmodel(&chain, bugname);
 	if( ret == -1 )
@@ -389,10 +410,6 @@ int main(int argc, char** argv)
 
 	chain_initialize(&chain);
 
-	int j,n;
-    //SAMPLERLIST* slist = c->model->samplers;
-    NODE* node;
-	NODE* monitor_nodes[100];
 	for ( j = 0 ; j < nchain ; j++ )
 	{
 		chain.core[j].nmonitor = nmonitor;
@@ -411,6 +428,8 @@ int main(int argc, char** argv)
 
 	if( mode_codegen == 0 )
 	{
+		int ind=0;
+
 		for( i = 0 ; i < nchain ; i++ )
 		{
 			int monitor_size = (int)((double)nupdate-1 / thin) + 1;
@@ -425,7 +444,6 @@ int main(int argc, char** argv)
 
 		printf("burn-in\n");
 		printf("--------------------------------------------------| %d\n", nburnin);
-		int ind=0;
 		chain_update(&chain, nburnin, 0);
 		printf("* 100%%\n");
 
@@ -459,7 +477,11 @@ int main(int argc, char** argv)
 		DIR* dir = opendir(CODEGEN_DIRNAME);
 		if( dir == NULL )
 		{
+#ifndef __VC
 			if( mkdir(CODEGEN_DIRNAME, S_IRWXU | S_IRWXG | S_IRWXO) != 0 )
+#else
+			if( mkdir(CODEGEN_DIRNAME, 0) != 0 )
+#endif
 			{
 				printf("failed to make directory named '%s'\n", CODEGEN_DIRNAME);
 				exit(90);
@@ -470,7 +492,7 @@ int main(int argc, char** argv)
 		chdir("codegen");
 
 		printf("writing sampler.hdf ... ");
-		FILE* fp = fopen("sampler.hdf", "w");
+		fp = fopen("sampler.hdf", "w");
 		if( fp != NULL )
 		{
 			chain_savehdf(&chain, fp, monitor_list, nmonitor, nburnin, nupdate, thin);
@@ -481,23 +503,26 @@ int main(int argc, char** argv)
 			fp = fopen("sampler.hdf", "r");
 			if( fp != NULL )
 			{
+				int sz;
+				char *buf;
+				char* templatedir;
+				HDF* hdf;
+
 				fseek(fp, 0, SEEK_END);
-				int sz = ftell(fp);
+				sz = ftell(fp);
 				fseek(fp, 0, SEEK_SET);
 				
-				char* buf = (char*)GC_MALLOC_ATOMIC(sz);
+				buf = (char*)GC_MALLOC_ATOMIC(sz);
 				fread(buf, 1, sz, fp);
 				fclose(fp); 
 				printf("OK\n");
 
-				
-				HDF* hdf;
 				hdf_init(&hdf);
 				printf("parsing hdf ... ");
 				hdf_read_string(hdf, buf);
 				printf("OK\n");
 
-				char* templatedir = gettemplatedir();
+				templatedir = gettemplatedir();
 				printf("templatedir = %s\n", templatedir);
 				savesrc(templatedir, "main.c.cs", "main.c", hdf);
 				savesrc(templatedir, "conf.h.cs", "conf.h", hdf);

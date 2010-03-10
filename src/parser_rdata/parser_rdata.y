@@ -1,7 +1,5 @@
-/* -*-C++-*- */
 %{
 #include <stdio.h>
-#include <gc.h>
 #include "rdata_node.h"
 
 RDATA_NODE* g_rdatanode = NULL;
@@ -84,9 +82,9 @@ r_assignment: r_name ARROW r_structure {
 	rdata_node_addparam($$, $3);
 }
 | r_name ARROW STRING {
+	RDATA_NODE* p = rdata_node_create(RDN_VAR);
 	$$ = rdata_node_create(RDN_VAR);
 	rdata_node_setname($$, $1);
-	RDATA_NODE* p = rdata_node_create(RDN_VAR);
 	rdata_node_setname(p, $3);;
 	rdata_node_addparam($$, p);
 }
@@ -164,7 +162,14 @@ r_value: DOUBLE {
 } 
 | NA {
 	$$ = rdata_node_create(RDN_VALUE);
+#ifdef __VC
+	volatile double zero = 0.0;
+	$$ = rdata_node_create(RDN_VALUE);
+	rdata_node_addvalue($$, zero / zero);
+#else
+	$$ = rdata_node_create(RDN_VALUE);
 	rdata_node_addvalue($$, JAGS_NA);
+#endif
 }
 ;
 

@@ -11,8 +11,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef __VC
 #include <unistd.h>
-
+#else
+#include "win32\getopt.h"
+#endif
 #include "cs.h"
 #include "neo_misc.h"
 #include "neo_hdf.h"

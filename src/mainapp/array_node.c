@@ -35,11 +35,12 @@
 ARRAY_NODE* array_node_create(MODEL* m)
 {
 	ARRAY_NODE* array;
+	int i;
+
 	array = (ARRAY_NODE*)GC_MALLOC(sizeof(ARRAY_NODE));
 	node_init(&array->node, m);
 	array->node.nodetype = N_ARRAY;
 	
-	int i;
 	for( i = 0 ; i < ARRAY_MAX_DIMS ; i++ )
 		array->dims[i] = 1;
 	
@@ -48,8 +49,8 @@ ARRAY_NODE* array_node_create(MODEL* m)
 
 void array_node_setdimension(ARRAY_NODE* array, int* dims, int ndims)
 {
-	assert(ARRAY_MAX_DIMS >= ndims);
 	int i;
+	assert(ARRAY_MAX_DIMS >= ndims);
 	for( i = 0 ; i < ndims ; i++ )
 	{
 		array->dims[i] = dims[i];
@@ -73,12 +74,15 @@ void array_node_free(ARRAY_NODE* array)
 
 char* array_node_tostring(ARRAY_NODE* array)
 {
-	assert(array!=NULL);
-	int n = array_node_getsize(array);
-	char** sparams = (char**)GC_MALLOC(sizeof(char*) * n);
+	int n;
+	char** sparams;
 	int i, i1, i2, i3, index[3], c, off, sz;
 	char* buf;
+
+	assert(array!=NULL);
 	
+	n = array_node_getsize(array);
+	sparams = (char**)GC_MALLOC(sizeof(char*) * n);
 	sz = strlen(array->name);
 	
 	c = 0;
@@ -120,12 +124,15 @@ char* array_node_tostring(ARRAY_NODE* array)
 
 char* array_node_toenvstring(ARRAY_NODE* array)
 {
+	char* buf;
+	int i, l;
+
 	assert(array!=NULL);
 	assert(array->node.model != NULL);
 
-	char* buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * (strlen(array->name)+50));
+	buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * (strlen(array->name)+50));
 	sprintf(buf, "env[index].%s", array->name);
-	int i, l;
+
 	l = strlen(array->name);
 	for( i = 4 ; i < l+4 ; i++ )
 	{

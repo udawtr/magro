@@ -16,10 +16,16 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <string.h>
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <errno.h>
 #include <limits.h>
+#ifndef __VC
 #include <dirent.h>
+#else
+#include "win32\dirent.h"
+#endif
 #include <sys/stat.h>
 
 #include "neo_misc.h"
@@ -27,6 +33,11 @@
 #include "neo_files.h"
 #include "wildmat.h"
 
+#ifdef __VC
+#define snprintf	sprintf
+#endif
+
+#ifndef __VC
 NEOERR *ne_mkdirs (const char *path, mode_t mode)
 {
   char mypath[_POSIX_PATH_MAX];
@@ -62,6 +73,7 @@ NEOERR *ne_mkdirs (const char *path, mode_t mode)
   }
   return STATUS_OK;
 }
+#endif
 
 NEOERR *ne_load_file_len (const char *path, char **str, int *out_len)
 {
@@ -112,6 +124,7 @@ NEOERR *ne_load_file (const char *path, char **str) {
   return ne_load_file_len (path, str, NULL);
 }
 
+#ifndef __VC
 NEOERR *ne_save_file (const char *path, char *str)
 {
   NEOERR *err;
@@ -135,7 +148,33 @@ NEOERR *ne_save_file (const char *path, char *str)
 
   return STATUS_OK;
 }
+#else
+NEOERR *ne_save_file (const char *path, char *str)
+{
+  NEOERR *err;
+  FILE* fp;
+  int w, l;
 
+  fp = fopen (path, "w");
+  if (fp == NULL )
+  {
+    return nerr_raise_errno (NERR_IO, "Unable to create file %s", path);
+  }
+  l = strlen(str);
+  w = fwrite (fp, sizeof(char), str, l);
+  if (w != l)
+  {
+    err = nerr_raise_errno (NERR_IO, "Unable to write file %s", path);
+    close (fp);
+    return err;
+  }
+  fclose (fp);
+
+  return STATUS_OK;
+}
+#endif
+
+#ifndef __VC
 NEOERR *ne_remove_dir (const char *path)
 {
   NEOERR *err;
@@ -191,6 +230,7 @@ NEOERR *ne_remove_dir (const char *path)
   }
   return STATUS_OK;
 }
+#endif
 
 NEOERR *ne_listdir(const char *path, ULIST **files)
 {

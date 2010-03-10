@@ -22,8 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#ifndef __VC
 #include <pthread.h>
 #include <unistd.h>
+#else
+
+#endif
 #include "chain.h"
 #include "conf.h"
 #include "../nmath/nmath.h"
@@ -73,9 +77,10 @@ int chain_loadmodel(CHAIN* chain, const char* filename)
     if( fp != NULL )
     {
         extern FILE* bugsin;
-        bugsin = fp;
         extern BUGS_NODE* g_bugsnode;
     	extern int bugsnerrs;
+
+        bugsin = fp;
 
         bugsparse();
         if( bugsnerrs > 0 )
@@ -248,7 +253,11 @@ void chain_update_indicator(CHAIN* chain)
 	{
 		sum = chain_update_indicator_core(chain, &ind);
 		if( sum < goal )
+#ifndef __VC
 			usleep(chain->minterval);
+#else
+			Sleep(chain->minterval);
+#endif
 		else
 			break;
 	}
@@ -259,6 +268,7 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 	int i;
 	CHAIN_ARG args[CHAIN_MAX];
 	pthread_t mthreadid;
+	void* ret;
 
 	for( i = 0 ; i < chain->nchain; i++ )
 	{
@@ -287,6 +297,7 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 	else
 	{
 		//multi thread mode
+#ifndef __VC
 		for( i = 0 ; i < chain->nchain; i++ )
 		{
 			int r;
@@ -295,12 +306,29 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 		}
 		pthread_create(&mthreadid, NULL, (void*)chain_update_indicator, (void*)chain);
 
-		void* ret;
 		for( i = 0 ; i < chain->nchain; i++ )
 		{
 			pthread_join(chain->core[i].threadid, &ret);
 		}
 		pthread_join(mthreadid, &ret);
+#else
+		for( i = 0 ; i < chain->nchain; i++ )
+		{
+			int r;
+			r = _beginthread((void*)chain_update_main, NULL, (void*)&args[i]);
+			assert(r!=-1);
+			chain->core[i].threadid = r;
+		}
+		mthreadid = _beginthread((void*)chain_update_indicator, NULL , (void*)chain);
+
+		for( i = 0 ; i < chain->nchain; i++ )
+		{
+			ret = WaitForSingleObject(chain->core[i].threadid, INFINITE);
+			CloseHandle(chain->core[i].threadid);
+		}
+		ret = WaitForSingleObject(mthreadid, INFINITE);
+		CloseHandle(mthreadid);
+#endif
 	}
 }
 
@@ -308,7 +336,7 @@ void chain_savehdf(CHAIN* chain, FILE* fp, char** monitor, int nmonitor, int bur
 {
     //NODELIST* graph;
     NODELIST* list;
-    int i,j,k,n;
+    int i,j,k,l,n;
 	COMPILER* c = chain->core[0].compiler;
     SAMPLERLIST* slist = c->model->samplers;
 
@@ -334,7 +362,7 @@ void chain_savehdf(CHAIN* chain, FILE* fp, char** monitor, int nmonitor, int bur
     	    fprintf(fp,"\t\t\t}\n");
     	    fprintf(fp,"\t\t\titems {\n");
     	    assert(array->node.nodetype == N_ARRAY);
-    	    int l = array_node_getsize(array);
+    	    l = array_node_getsize(array);
     	    for( j = 0 ; j < l ; j++ )
     	    {
     	        //constant = (CONSTANT_NODE*)array_node_getnode(array,j);
@@ -405,26 +433,27 @@ void chain_savehdf(CHAIN* chain, FILE* fp, char** monitor, int nmonitor, int bur
     fprintf(fp, "\tmode_thread = %d\n", mode_thread);
     fprintf(fp, "}\n");
 
-    NODE* monitor_nodes[100];
-    for( i = 0 ; i < nmonitor ; i++ )
-    {
-        NODE* node = nodedic_findnode_byliteral(c->model->relations, monitor[i]);
-        monitor_nodes[i] = node;
-        if( node == NULL )
-        {
-            printf("cannot find monitoring variable named '%s'\n", monitor[i]);
-            exit(99);
-        }
-    }
+	{
+		NODE* monitor_nodes[100];
+		for( i = 0 ; i < nmonitor ; i++ )
+		{
+			NODE* node = nodedic_findnode_byliteral(c->model->relations, monitor[i]);
+			monitor_nodes[i] = node;
+			if( node == NULL )
+			{
+				printf("cannot find monitoring variable named '%s'\n", monitor[i]);
+				exit(99);
+			}
+		}
 
-
-    fprintf(fp, "monitors {\n");
-    for( i = 0 ; i < nmonitor ; i++ )
-    {
-        fprintf(fp, "\t%d {\n", i );
-        fprintf(fp, "\t\tname= %s\n", monitor[i] );
-        fprintf(fp, "\t\tsymbol = %s\n", node_toenvstring(monitor_nodes[i]) );
-        fprintf(fp, "\t}\n");
-    }
-    fprintf(fp, "}\n");
+		fprintf(fp, "monitors {\n");
+		for( i = 0 ; i < nmonitor ; i++ )
+		{
+			fprintf(fp, "\t%d {\n", i );
+			fprintf(fp, "\t\tname= %s\n", monitor[i] );
+			fprintf(fp, "\t\tsymbol = %s\n", node_toenvstring(monitor_nodes[i]) );
+			fprintf(fp, "\t}\n");
+		}
+		fprintf(fp, "}\n");
+	}
 }

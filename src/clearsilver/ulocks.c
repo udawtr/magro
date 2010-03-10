@@ -9,12 +9,16 @@
  *
  */
 
+#ifndef __VC
 #include "cs_config.h"
+#endif
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <string.h>
 #include <errno.h>
 

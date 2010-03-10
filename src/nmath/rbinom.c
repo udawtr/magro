@@ -42,7 +42,7 @@
 
 #define MT(p)	state->rbinom.p
 
-static inline double fmin2(double x, double y) {
+static double fmin2(double x, double y) {
         return (x < y) ? x : y;
 }
 

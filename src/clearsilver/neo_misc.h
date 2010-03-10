@@ -91,7 +91,7 @@ typedef unsigned short int UINT16;
 typedef short int INT16;
 typedef unsigned char UINT8;
 typedef char INT8;
-typedef char BOOL;
+typedef char NEOBOOL;
 
 #ifndef MIN
 #define MIN(x,y)        (((x) < (y)) ? (x) : (y))

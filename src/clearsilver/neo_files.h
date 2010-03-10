@@ -22,7 +22,9 @@ __BEGIN_DECLS
 
 typedef int (* MATCH_FUNC)(void *rock, const char *filename);
 
+#ifndef __VC
 NEOERR *ne_mkdirs (const char *path, mode_t mode);
+#endif
 NEOERR *ne_load_file (const char *path, char **str);
 NEOERR *ne_load_file_len (const char *path, char **str, int *len);
 NEOERR *ne_save_file (const char *path, char *str);

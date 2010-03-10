@@ -34,12 +34,17 @@ static char TzBuf[_POSIX_PATH_MAX + 4];
 
 static int time_set_tz (const char *mytimezone)
 {
-  snprintf (TzBuf, sizeof(TzBuf), "TZ=%s", mytimezone);
-  putenv(TzBuf);
+#ifndef __VC
+	snprintf (TzBuf, sizeof(TzBuf), "TZ=%s", mytimezone);
+#else
+	sprintf (TzBuf, "TZ=%s", mytimezone);
+#endif
+	putenv(TzBuf);
   tzset();
   return 0;
 }
 
+#ifndef __VC
 void neo_time_expand (const time_t tt, const char *mytimezone, struct tm *ttm)
 {
   const char *cur_tz = getenv("TZ");
@@ -53,6 +58,7 @@ void neo_time_expand (const time_t tt, const char *mytimezone, struct tm *ttm)
     time_set_tz(cur_tz);
   }
 }
+#endif
 
 time_t neo_time_compact (struct tm *ttm, const char *mytimezone)
 {
@@ -74,6 +80,7 @@ time_t neo_time_compact (struct tm *ttm, const char *mytimezone)
   return r;
 }
 
+#ifndef __VC
 /* Hefted from NCSA HTTPd src/util.c -- What a pain in the ass. */
 long neo_tz_offset(struct tm *ttm) {
   /* We assume here that HAVE_TM_ZONE implies HAVE_TM_GMTOFF and
@@ -106,4 +113,4 @@ long neo_tz_offset(struct tm *ttm) {
   return tz;
 #endif /* GMT OFFSet Crap */
 }
-
+#endif

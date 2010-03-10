@@ -23,7 +23,9 @@
 #define __RDATA_NODE_H__
 
 #include <math.h>
+#ifndef __VC
 #define JAGS_NA	NAN	
+#endif
 
 typedef enum _RDATA_NODETYPE RDATA_NODETYPE;
 enum _RDATA_NODETYPE

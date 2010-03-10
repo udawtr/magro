@@ -66,6 +66,8 @@ typedef struct _neo_err
 #define USE_C99_VARARG_MACROS 1
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 4) || defined (S_SPLINT_S)
 #define USE_GNUC_VARARG_MACROS 1
+#elif __VC
+#define USE_C99_VARARG_MACROS 1
 #else
 #error The compiler is missing support for variable-argument macros.
 #endif

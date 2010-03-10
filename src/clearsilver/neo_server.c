@@ -23,11 +23,17 @@
  * think I need to worry about 3 & 5 either, but maybe in the future.
  */
 
+#ifndef __VC
 #include "cs_config.h"
+#endif
 
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <sys/types.h>
+#ifndef __VC
 #include <sys/wait.h>
+#endif
 #include <limits.h>
 #include <errno.h>
 #include <string.h>

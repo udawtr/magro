@@ -9,15 +9,21 @@
  *
  */
 
+#ifndef __VC
 #include "cs_config.h"
+#endif
 
+#ifndef __VC
 #include <unistd.h>
+#endif
 #include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#ifndef __VC
 #include <regex.h>
+#endif
 #include "neo_misc.h"
 #include "neo_err.h"
 #include "neo_str.h"
@@ -381,7 +387,8 @@ char *nsprintf_alloc (int start_size, const char *fmt, ...)
   return r;
 }
 
-BOOL reg_search (const char *re, const char *str)
+#ifndef __VC
+NEOBOOL reg_search (const char *re, const char *str)
 {
   regex_t search_re;
   int errcode;
@@ -399,6 +406,7 @@ BOOL reg_search (const char *re, const char *str)
     return TRUE;
   return FALSE;
 }
+#endif
 
 NEOERR *string_readline (STRING *str, FILE *fp)
 {
@@ -597,7 +605,7 @@ char *repr_string_alloc (const char *s)
 static char EscapedChars[] = "$&+,/:;=?@ \"<>#%{}|\\^~[]`'";
 
 // Check if a single character needs to be escaped
-static BOOL is_reserved_char(char c)
+static NEOBOOL is_reserved_char(char c)
 {
   int i = 0;
 

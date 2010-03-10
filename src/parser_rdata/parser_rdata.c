@@ -113,7 +113,6 @@
 #line 2 "parser_rdata.y"
 
 #include <stdio.h>
-#include <gc.h>
 #include "rdata_node.h"
 
 RDATA_NODE* g_rdatanode = NULL;
@@ -1487,9 +1486,9 @@ yyreduce:
   case 11:
 #line 86 "parser_rdata.y"
     {
+	RDATA_NODE *p = rdata_node_create(RDN_VAR);
 	(yyval.pnode) = rdata_node_create(RDN_VAR);
 	rdata_node_setname((yyval.pnode), (yyvsp[(1) - (3)].stringptr));
-	RDATA_NODE* p = rdata_node_create(RDN_VAR);
 	rdata_node_setname(p, (yyvsp[(3) - (3)].stringptr));;
 	rdata_node_addparam((yyval.pnode), p);
 ;}
@@ -1593,8 +1592,14 @@ yyreduce:
   case 30:
 #line 165 "parser_rdata.y"
     {
+#ifdef __VC
+	double zero = 0.0;
+	(yyval.pnode) = rdata_node_create(RDN_VALUE);
+	rdata_node_addvalue((yyval.pnode), zero / zero);
+#else
 	(yyval.pnode) = rdata_node_create(RDN_VALUE);
 	rdata_node_addvalue((yyval.pnode), JAGS_NA);
+#endif
 ;}
     break;
 

@@ -84,13 +84,16 @@ int symbol_node_compare(SYMBOL_NODE* s1, SYMBOL_NODE* s2)
 
 char *_symbol_node_tostring(SYMBOL_NODE* symbol, int index_base)
 {
+	int i, off, sz;
+	int nindex;
+	char** sparams;
+	char* buf;
+
 	assert(symbol != NULL);
 	assert(symbol->node.nodetype == N_SYMBOL);
-	int i, off, sz;
-	int nindex = symbol->node.parents->count;
-	char** sparams = (char**)GC_MALLOC_ATOMIC(sizeof(char*)*nindex);
-	char* buf;
-	
+
+	nindex = symbol->node.parents->count;
+	sparams = (char**)GC_MALLOC_ATOMIC(sizeof(char*)*nindex);
 	sz = strlen(symbol->name);
 	for( i = 0 ; i < nindex ; i++ )
 	{
@@ -131,22 +134,25 @@ char* symbol_node_tostring(SYMBOL_NODE* symbol)
 
 char* symbol_node_toenvstring(SYMBOL_NODE* symbol)
 {
+    int i,l;
 	char* str = _symbol_node_tostring(symbol, 0);
 	char* buf = GC_MALLOC_ATOMIC(sizeof(char)*(strlen(str)+255));
+
 	sprintf(buf, "env[index].%s", str);
-        int i,l;
-        l = strlen(buf);
-        for ( i = 11 ; i < l ; i++ )
-        {
-            if( buf[i] == '.' ) buf[i] = '_';
-        }
+    l = strlen(buf);
+    for ( i = 11 ; i < l ; i++ )
+    {
+        if( buf[i] == '.' ) buf[i] = '_';
+    }
 	return buf;
 }
 
 void symbol_node_setname(SYMBOL_NODE* symbol, char* name)
 {
 	int len,sz;
+
 	assert(symbol != NULL);
+
 	len = strlen(name);
 	sz = sizeof(char) * (len+1);
 	symbol->name = (char*)GC_MALLOC_ATOMIC(sz);
