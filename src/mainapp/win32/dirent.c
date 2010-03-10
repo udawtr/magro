@@ -13,7 +13,7 @@
 #include <io.h> /* _findfirst and _findnext set errno iff they return -1 */
 #include <stdlib.h>
 #include <string.h>
-#include <winbase.h>
+#include <windows.h>
 
 #ifdef __cplusplus
 extern "C"

@@ -29,7 +29,7 @@ struct dirent *readdir(DIR *);
 void          rewinddir(DIR *);
 int mkdir(const char* pathname, int dummy);
 int chdir(const char* pathname);
-char *getcwd(char *buf, size_t size);
+char *getcwd(char *buf, int size);
 
 /*
 

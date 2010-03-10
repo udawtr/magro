@@ -119,12 +119,13 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="__VC;WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -137,7 +138,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="clearsilver.lib nmath.lib parser_bugs.lib parser_rdata.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;$(TargetDir)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -193,10 +196,6 @@
 			</File>
 			<File
 				RelativePath=".\win32\dirent.c"
-				>
-			</File>
-			<File
-				RelativePath=".\dirent.c"
 				>
 			</File>
 			<File
@@ -275,10 +274,6 @@
 			</File>
 			<File
 				RelativePath=".\win32\dirent.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dirent.h"
 				>
 			</File>
 			<File
