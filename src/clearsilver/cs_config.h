@@ -51,7 +51,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the <libintl.h> header file. */
-/* #undef HAVE_LIBINTL_H */
+#define HAVE_LIBINTL_H 1
 
 /* Define to 1 if you have the <limits.h> header file. */
 #define HAVE_LIMITS_H 1
@@ -98,7 +98,7 @@
 #define HAVE_REGCOMP 1
 
 /* Define to 1 if you have the `re_comp' function. */
-/* #undef HAVE_RE_COMP */
+#define HAVE_RE_COMP 1
 
 /* Define to 1 if you have the `rmdir' function. */
 #define HAVE_RMDIR 1
@@ -157,6 +157,9 @@
 
 /* Define to 1 if you have the `strstr' function. */
 #define HAVE_STRSTR 1
+
+/* Define to 1 if you have the `strtok_r' function. */
+#define HAVE_STRTOK_R 1
 
 /* Define to 1 if you have the `strtol' function. */
 #define HAVE_STRTOL 1
@@ -217,7 +220,22 @@
 
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
-/* #undef LSTAT_FOLLOWS_SLASHED_SYMLINK */
+#define LSTAT_FOLLOWS_SLASHED_SYMLINK 1
+
+/* Define to the address where bug reports for this package should be sent. */
+#define PACKAGE_BUGREPORT "BUG-REPORT-ADDRESS"
+
+/* Define to the full name of this package. */
+#define PACKAGE_NAME "FULL-PACKAGE-NAME"
+
+/* Define to the full name and version of this package. */
+#define PACKAGE_STRING "FULL-PACKAGE-NAME VERSION"
+
+/* Define to the one symbol short name of this package. */
+#define PACKAGE_TARNAME "full-package-name"
+
+/* Define to the version of this package. */
+#define PACKAGE_VERSION "VERSION"
 
 /* Define to the type of arg 1 for `select'. */
 #define SELECT_TYPE_ARG1 int
@@ -244,9 +262,6 @@
 
 /* Define to 1 if your <sys/time.h> declares `struct tm'. */
 /* #undef TM_IN_SYS_TIME */
-
-/* Version number of package */
-#define VERSION "0.1.0"
 
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */

@@ -22,10 +22,10 @@ AC_PROG_RANLIB
 AC_HEADER_DIRENT
 AC_HEADER_STDC
 AC_CHECK_HEADERS([float.h limits.h memory.h stdlib.h string.h unistd.h])
-AC_CHECK_HEADERS([gc.h], has_gc_h=1, has_gc_h=0)
-if test $has_gc_h = 0; then
-    AC_MSG_ERROR("FATAL: cannot find gc.h . set CPPFLAGS and retry - stop.");
-fi
+#AC_CHECK_HEADERS([gc.h], has_gc_h=1, has_gc_h=0)
+#if test $has_gc_h = 0; then
+#    AC_MSG_ERROR("FATAL: cannot find gc.h . set CPPFLAGS and retry - stop.");
+#fi
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -35,7 +35,6 @@ AC_C_INLINE
 AC_FUNC_CLOSEDIR_VOID
 AC_CHECK_FUNCS([floor getcwd mkdir pow sqrt isnan])
 
-AC_SUBST("src/clearsilver")
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile

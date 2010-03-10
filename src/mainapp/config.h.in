@@ -13,9 +13,6 @@
 /* Define to 1 if you have the `floor' function. */
 #undef HAVE_FLOOR
 
-/* Define to 1 if you have the <gc.h> header file. */
-#undef HAVE_GC_H
-
 /* Define to 1 if you have the `getcwd' function. */
 #undef HAVE_GETCWD
 

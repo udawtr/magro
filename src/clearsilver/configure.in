@@ -1,13 +1,9 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-PACKAGE = clearsilver
-VERSION = 0.1.0
-
 AC_PREREQ(2.61)
 AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
-AM_INIT_AUTOMAKE(clearsilver, 0.1.0)
-AC_CONFIG_HEADER(cs_config.h)
+AC_CONFIG_HEADER([cs_config.h])
 AC_CONFIG_SRCDIR([ClearSilver.h])
 
 # Checks for programs.
@@ -43,7 +39,7 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_FUNC_VPRINTF
 AC_FUNC_WAIT3
-AC_CHECK_FUNCS([bzero dup2 gethostbyname gettimeofday localtime_r memchr memmove memset mkdir putenv re_comp regcomp rmdir select socket strchr strdup strerror strncasecmp strpbrk strrchr strspn strstr strtol tzset])
+AC_CHECK_FUNCS([bzero dup2 gethostbyname gettimeofday localtime_r memchr memmove memset mkdir putenv re_comp regcomp rmdir select socket strchr strdup strerror strncasecmp strpbrk strrchr strspn strstr strtol strtok_r tzset])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
