@@ -47,8 +47,10 @@
 #define DEBUG_EXPR_PARSE 0
 #define DEBUG_EXPR_EVAL 0
 
-#ifdef __VC
-#define snprintf	sprintf
+#ifndef __VC
+#define _snprintf	snprintf
+#define _strdup		strdup 
+#define _strnicmp	strncasecmp
 #endif
 
 typedef enum

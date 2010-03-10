@@ -35,6 +35,10 @@ int NERR_LOCK = 0;
 int NERR_DB = 0;
 int NERR_EXISTS = 0;
 
+#ifndef __VC
+#define _snprintf       snprintf
+#endif
+
 static NEOERR *FreeList = NULL;
 static ULIST *Errors = NULL;
 static int Inited = 0;

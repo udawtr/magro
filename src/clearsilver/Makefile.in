@@ -47,14 +47,11 @@ AR = ar
 ARFLAGS = cru
 libcs_a_AR = $(AR) $(ARFLAGS)
 libcs_a_LIBADD =
-am_libcs_a_OBJECTS = cs.$(OBJEXT) missing.$(OBJEXT) \
-	neo_files.$(OBJEXT) neo_misc.$(OBJEXT) neo_server.$(OBJEXT) \
-	skiplist.$(OBJEXT) ulocks.$(OBJEXT) csdump.$(OBJEXT) \
-	dict.$(OBJEXT) neo_date.$(OBJEXT) neo_hash.$(OBJEXT) \
-	neo_net.$(OBJEXT) neo_str.$(OBJEXT) csparse.$(OBJEXT) \
+am_libcs_a_OBJECTS = missing.$(OBJEXT) neo_files.$(OBJEXT) \
+	neo_misc.$(OBJEXT) ulocks.$(OBJEXT) neo_date.$(OBJEXT) \
+	neo_hash.$(OBJEXT) neo_str.$(OBJEXT) csparse.$(OBJEXT) \
 	filter.$(OBJEXT) neo_err.$(OBJEXT) neo_hdf.$(OBJEXT) \
-	neo_rand.$(OBJEXT) rcfs.$(OBJEXT) ulist.$(OBJEXT) \
-	wildmat.$(OBJEXT)
+	neo_rand.$(OBJEXT) ulist.$(OBJEXT) wildmat.$(OBJEXT)
 libcs_a_OBJECTS = $(am_libcs_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/mainapp
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -156,9 +153,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libcs.a
-libcs_a_SOURCES = cs.c missing.c neo_files.c neo_misc.c neo_server.c skiplist.c ulocks.c \
-csdump.c dict.c  neo_date.c neo_hash.c neo_net.c neo_str.c  \
-csparse.c filter.c neo_err.c neo_hdf.c neo_rand.c rcfs.c  ulist.c  wildmat.c
+libcs_a_SOURCES = missing.c neo_files.c neo_misc.c ulocks.c \
+neo_date.c neo_hash.c neo_str.c  \
+csparse.c filter.c neo_err.c neo_hdf.c neo_rand.c ulist.c  wildmat.c
 
 all: all-am
 
@@ -208,10 +205,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cs.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/csdump.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/csparse.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dict.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/missing.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_date.Po@am__quote@
@@ -220,12 +214,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_hash.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_hdf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_misc.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_net.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_rand.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neo_str.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rcfs.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/skiplist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ulist.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ulocks.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wildmat.Po@am__quote@
