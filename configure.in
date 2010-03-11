@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT(magro, 0.1.1, udawtr@gmail.com)
-AM_INIT_AUTOMAKE(magro, 0.1.1, nodefined)
+AC_INIT(magro, 0.1.5, udawtr@gmail.com)
+AM_INIT_AUTOMAKE(magro, 0.1.5, nodefined)
 AC_CONFIG_SRCDIR([src/mainapp/array_node.c])
 AC_CONFIG_HEADER([src/mainapp/config.h])
 # Checks for programs.
