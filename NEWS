@@ -1,3 +1,9 @@
+0.1.5
+
+Bug fix and new support release (2010-03-11)
+* Fix: Donot set initial-values for NOT the first chain (ONLY set values for the first chain)
+* New: Enable build with VisualStudido 2008 and install in Windows environment.
+
 0.1.1
 
 Bug fix release (2010-03-09).
