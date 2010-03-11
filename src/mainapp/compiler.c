@@ -104,7 +104,7 @@ void compiler_buildrelations(COMPILER* c, BUGS_NODE* node)
 			c->env = env_stackin(c->env);
 			{
 				RANGE_NODE* range = (RANGE_NODE*)compiler_eval(c, counter->params->items[0]);
-				for( j = range->begin ; j <= range->end ; j++ )
+				for( j = (int)range->begin ; j <= (int)range->end ; j++ )
 				{
 					CONSTANT_NODE* loopcounter  = constant_node_create(c->model);
 					constant_node_setvalue(loopcounter, (double)j);
@@ -328,9 +328,9 @@ void compiler_setrinit(COMPILER* c, RDATA_NODE* rnode)
 					for( j = 0 ; j < l ; j++ )
 					{
 						if( l > 1 )
-    						len = sprintf(buf, "%s[%d]", name, j);
+    						len = snprintf(buf, 255, "%s[%d]", name, j);
 						else
-							len = sprintf(buf, "%s", name);
+							len = snprintf(buf, 255, "%s", name);
 						assert(len < 255);
 
 						constant = constant_node_create(c->model);
@@ -402,9 +402,9 @@ void compiler_setrdata(COMPILER* c, RDATA_NODE* rnode)
 					for( j = 0 ; j < l ; j++ )
 					{
 						if( l > 1 ) 
-    						len = sprintf(buf, "%s[%d]", name, j);
+    						len = snprintf(buf, 255, "%s[%d]", name, j);
     					else
-							len = sprintf(buf, "%s", name);
+							len = snprintf(buf, 255, "%s", name);
 						assert(len < 255);
 
 						constant = constant_node_create(c->model);
@@ -450,11 +450,12 @@ void compiler_setrdata(COMPILER* c, RDATA_NODE* rnode)
 		n = c->env->count;
 		for( i = 0 ; i < n ; i++ )
 		{
-			int l = array_node_getsize(array);
+			int l;
 			int idx[3] = {0,0,0};
 
 			printf("%s = [", c->env->names[i]);
 			array = (ARRAY_NODE*)c->env->nodes[i];
+			l = array_node_getsize(array);
 			assert(array->node.nodetype == N_ARRAY);
 			for( j = 0 ; j < l ; j++ )
 			{
@@ -597,7 +598,7 @@ void compiler_resolvechildren(NODELIST* graph)
 
 void __compiler_serializegraph(NODE* node, NODELIST* graph)
 {
-	int i, j, n, nn, t, f;
+	int i, n, f;
 
 	assert( node != NULL && graph != NULL );
 	assert( graph->count >= 0);

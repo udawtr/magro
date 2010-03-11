@@ -17,12 +17,21 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef _WIN32
 #include <unistd.h>
 #include <pthread.h>
+#else
+#include <windows.h>
+#include <process.h>
+#endif
 #include "nmath.h"
 #include "environment.h"
 #include "sampler.h"
 #include "conf.h"
+
+#ifdef _WIN32
+typedef uintptr_t pthread_t;
+#endif
 
 pthread_t threadid[NCHAIN];
 pthread_t mthreadid;
@@ -127,8 +136,12 @@ void chain_update_indicator(void* arg)
     {
         sum = chain_update_indicator_core(&ind);
         if( sum < goal )
+#ifdef _WIN32
+			Sleep(MINTERVAL);
+#else
             usleep(MINTERVAL);
-        else
+#endif
+	        else
             break;
     }
 }

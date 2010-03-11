@@ -47,7 +47,7 @@ SAMPLER* real_sampler_create(STOCHASTIC_NODE* snode)
 	s->adapt = 1;
 	s->sumdiff = 0.0;
 	s->iter = 0;
-	s->width = 1.0;
+	s->width = 1;
 	s->max = 10;
 
     return (SAMPLER*)s;
@@ -108,6 +108,10 @@ void real_sampler_update(REAL_SAMPLER* s, NMATH_STATE* ms)
 		xnew = L + uniform(ms) * (R-L);
 		stochastic_node_setvalue(snode, xnew);
 		g = sampler_logfullconditional((SAMPLER*)s, ms);
+		if( isnan(g)) 
+		{
+			printf("AAA");
+		}
 		if( mode_verbose > 2 )
 		{
         	printf("      L=%f, R=%f, g=%f, xnew=%f\n",  L, R, g, xnew);

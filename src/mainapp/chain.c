@@ -26,7 +26,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #else
-
+#include <time.h>
+#include <sys/types.h>
 #endif
 #include "chain.h"
 #include "conf.h"
@@ -37,19 +38,24 @@ int bugsparse();
 
 void chain_init(CHAIN* chain, int nchain)
 {
-	int i,t;
+	int i,t, noise=327;
 
 	assert(chain!=NULL);
 	assert(nchain<=CHAIN_MAX);
 
 	chain->nchain = nchain;
 	t = (int)time(NULL);
-	for( i = 0 ; i < nchain ; i++, t+=327)
+#ifdef _DEBUG
+	t = 0;
+	noise = 0;
+#endif
+	for( i = 0 ; i < nchain ; i++, t+=noise)
 	{
 		CHAINCORE* core = &chain->core[i];
-		core->threadid = NULL;
+		core->threadid = 0;
 		core->nciter = 0;
 		core->compiler = compiler_create();
+		core->monitor_buff = NULL;
 		NMath_Init(&core->ms);
 		RNG_Init(&core->ms, t);
 	}	
@@ -64,14 +70,16 @@ void chain_free(CHAIN* chain)
 	{
 		CHAINCORE* core = &chain->core[i];
 		compiler_free(core->compiler);
-		GC_FREE(core->monitor_buff);
+		if( core->monitor_buff != NULL )
+		{
+			GC_FREE(core->monitor_buff);
+		}
 	}
 }
 
 int chain_loadmodel(CHAIN* chain, const char* filename)
 {
 	FILE* fp;
-	int i;
 
     fp = fopen(filename, "r");
     if( fp != NULL )
@@ -136,7 +144,7 @@ int chain_loaddata(CHAIN* chain, const char* filename)
 	return -1;
 }
 
-int chain_loadinit(CHAIN* chain, int id, const char* filename)
+int chain_loadinit(CHAIN* chain, const char* filename)
 {
 	FILE* fp;
 
@@ -146,6 +154,8 @@ int chain_loadinit(CHAIN* chain, int id, const char* filename)
     	extern FILE *rdatain;
     	extern RDATA_NODE* g_rdatanode;
     	extern int rdatanerrs;
+		int i;
+
     	rdatain = fp;
 
         rdataparse();
@@ -155,7 +165,10 @@ int chain_loadinit(CHAIN* chain, int id, const char* filename)
         }
         fclose(fp);
         
-		compiler_setrinit(chain->core[id].compiler, g_rdatanode);
+		for( i = 0 ; i < chain->nchain ; i++ )
+		{
+			compiler_setrinit(chain->core[i].compiler, g_rdatanode);
+		}
         
 		return 0;
 	}
@@ -163,7 +176,7 @@ int chain_loadinit(CHAIN* chain, int id, const char* filename)
 	return -1;
 }
 
-int chain_initialize(CHAIN* chain)
+void chain_initialize(CHAIN* chain)
 {
 	int i;
 	for( i = 0 ; i < chain->nchain ; i++ )
@@ -208,14 +221,15 @@ void chain_update_main_core(CHAIN_ARG* arg, int n)
 	}
 }
 
-void chain_update_main(CHAIN_ARG* arg)
+void chain_update_main(void* _arg)
 {
+	CHAIN_ARG* arg = (CHAIN_ARG*)_arg;
 	CHAIN* chain = arg->chain;
 	CHAINCORE* core = &arg->chain->core[arg->id];
 	COMPILER* c = core->compiler;
     SAMPLERLIST* slist = c->model->samplers;
 
-	int i, n;
+	int n;
 	for( n = 0 ; n < chain->niter ; n++ )
 	{
 		chain_update_main_core(arg, n);
@@ -245,7 +259,7 @@ int chain_update_indicator_core(CHAIN* chain, int *ind)
 
 void chain_update_indicator(CHAIN* chain)
 {
-	int i, sum=0;
+	int sum=0;
 	int ind = 0;
 	int goal = chain->niter*chain->nchain;
 
@@ -268,7 +282,6 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 	int i;
 	CHAIN_ARG args[CHAIN_MAX];
 	pthread_t mthreadid;
-	void* ret;
 
 	for( i = 0 ; i < chain->nchain; i++ )
 	{
@@ -286,10 +299,12 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 		int ind = 0, n;
 		for( n = 0 ; n < chain->niter ; n++ )
 		{
-			for( i = 0 ; i < chain->nchain; i++ )
+
+			for( i = 0; i < chain->nchain; i++ )
 			{
 				chain_update_main_core(&args[i], n);
 			}
+
 			chain_update_indicator_core(chain, &ind);
 		}
 		chain_update_indicator_core(chain, &ind);
@@ -298,6 +313,7 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 	{
 		//multi thread mode
 #ifndef __VC
+		void* ret;
 		for( i = 0 ; i < chain->nchain; i++ )
 		{
 			int r;
@@ -314,20 +330,18 @@ void chain_update(CHAIN* chain, int niter, int fmonitor)
 #else
 		for( i = 0 ; i < chain->nchain; i++ )
 		{
-			int r;
-			r = _beginthread((void*)chain_update_main, NULL, (void*)&args[i]);
+			uintptr_t r;
+			r = _beginthread((void*)chain_update_main, 0, (void*)&args[i]);
 			assert(r!=-1);
 			chain->core[i].threadid = r;
 		}
-		mthreadid = _beginthread((void*)chain_update_indicator, NULL , (void*)chain);
+		mthreadid = _beginthread((void*)chain_update_indicator, 0, (void*)chain);
 
 		for( i = 0 ; i < chain->nchain; i++ )
 		{
-			ret = WaitForSingleObject(chain->core[i].threadid, INFINITE);
-			CloseHandle(chain->core[i].threadid);
+			WaitForSingleObject((HANDLE)chain->core[i].threadid, INFINITE);
 		}
-		ret = WaitForSingleObject(mthreadid, INFINITE);
-		CloseHandle(mthreadid);
+		WaitForSingleObject((HANDLE)mthreadid, INFINITE);
 #endif
 	}
 }
@@ -392,6 +406,7 @@ void chain_savehdf(CHAIN* chain, FILE* fp, char** monitor, int nmonitor, int bur
     	fprintf(fp,"\t}\n");
 	}
     fprintf(fp,"}\n");
+
     fprintf(fp,"samplers {\n");
     for( k = 0 ; k < chain->nchain ; k++ )
 	{

@@ -66,6 +66,7 @@ char* gettemplatedir()
 	if( chdir(bin_path) !=0 ) { if( mode_verbose) printf("NG\n"); return NULL; }
 	if( mode_verbose ) printf("OK\n");	
 
+#ifndef __VC
 	if( mode_verbose ) printf("cd %s .. ", "../");
 	if( chdir("../") !=0 ) { if( mode_verbose) printf("NG\n"); return NULL; }
 	if( mode_verbose ) printf("OK\n");	
@@ -77,7 +78,7 @@ char* gettemplatedir()
 	if( mode_verbose ) printf("cd %s .. ", PACKAGE_NAME);
 	if( chdir(PACKAGE_NAME) !=0 ) { if( mode_verbose) printf("NG\n"); return NULL; }
 	if( mode_verbose ) printf("OK\n");	
-	
+#endif	
 	if( mode_verbose ) printf("cd %s .. ", "templates");
 	if( chdir("templates") !=0 ) { if( mode_verbose) printf("NG\n"); return NULL; }
 	if( mode_verbose ) printf("OK\n");	
@@ -148,7 +149,6 @@ void saveCODA(CHAIN* chain, int nmonitor, char** monitor_list)
    
 	for( j = 0 ; j < chain->nchain; j++ )
 	{     
-		CHAINCORE* core;
 		double* monitor_buff;
 		int monitor_count;
 
@@ -180,22 +180,31 @@ int main(int argc, char** argv)
 	int nmonitor=0;
 	char* monitor_list[100];
 	CHAIN chain;
-	int i;
+	int i,j;
 	int ret;	
-	int j,n;
+	int n;
     //SAMPLERLIST* slist = c->model->samplers;
     NODE* node;
 	NODE* monitor_nodes[100];
 	FILE* fp;
 
+#if __VC
+	_fullpath(bin_path, argv[0], PATH_MAX); 
+#endif
+
 	strcpy(bin_path, argv[0]);
 	for( i = strlen(bin_path)-1 ; i >= 0 ; i-- )
 	{
+#ifdef __VC
+		if( bin_path[i] == '\\' ){
+#else
 		if( bin_path[i] == '/' ){
+#endif
 			bin_path[i] = '\0';
 			break;
 		}
 	}
+	printf(bin_path);
 		
 
 	getcwd(boot_path, PATH_MAX);
@@ -394,7 +403,7 @@ int main(int argc, char** argv)
 	if( rname_init != NULL )
 	{
 		printf("reading parameter file in %s ... ", rname_init);
-		ret = chain_loadinit(&chain, 0, rname_init);
+		ret = chain_loadinit(&chain, rname_init);
 		if( ret == -1 ) 
 		{
 			printf("faile to open the file\n");
@@ -506,6 +515,7 @@ int main(int argc, char** argv)
 				int sz;
 				char *buf;
 				char* templatedir;
+				char cmdbuf[1024];
 				HDF* hdf;
 
 				fseek(fp, 0, SEEK_END);
@@ -534,7 +544,13 @@ int main(int argc, char** argv)
 				
 				hdf_destroy(&hdf);
 
+#ifndef __VC
 				system("gcc  main.c environment.c sampler.c -L/usr/local/lib -lnmath -I/usr/local/include -W -Wall -lm -pthread");
+#else
+				system("cl main.c environment.c sampler.c /FD /EHsc /MD /Gy /c /Zi /TC");
+				snprintf(cmdbuf, 1024, "link main.obj environment.obj sampler.obj nmath.lib /LIBPATH:\"%s\"", bin_path);
+				system(cmdbuf);
+#endif
 			}
 		}
 	}

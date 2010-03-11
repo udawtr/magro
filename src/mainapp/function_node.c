@@ -262,7 +262,8 @@ char* function_node_tostring(FUNCTION_NODE* fnode)
 	const char* namestr = function_node_getnamestr(fnode);
 	int nparam = fnode->node.parents->count;
 	char** sparams = GC_MALLOC(sizeof(char*) * nparam);
-	int i, l, sz, off, isbin;
+	int i, isbin;
+	unsigned int sz, off;
 	char* buf;
 	NODE* param;	
 
@@ -312,7 +313,6 @@ char* function_node_tostring(FUNCTION_NODE* fnode)
 char* function_node_toenvstring(FUNCTION_NODE* fnode)
 {
 	int i, nparam;
-	int off;
 	int isbin;
 	char* buf, *tmp;
 	const char *namestr;
@@ -420,6 +420,7 @@ const char* function_node_getnamestr(FUNCTION_NODE* fnode)
 	case F_LOG: return "log";
 	case F_SUM: return "sum";
 	case F_LET: return "=";
+	default: return "[unknown function]";
 	}
 	assert(0);
 }

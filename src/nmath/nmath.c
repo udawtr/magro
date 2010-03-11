@@ -27,6 +27,7 @@
 #include "nmath.h"
 
 #ifdef __VC
+volatile unsigned long ___nan[2]={0xffffffff, 0x7fffffff};
 volatile double NAN;
 volatile double POSINF;
 volatile double NEGINF;
@@ -37,9 +38,12 @@ void NMath_Init(NMATH_STATE *state)
 #ifdef __VC
 	double zero = 0.0;
 	double one = 1.0;
-	NAN = zero/zero;
+	NaN = *(double*)___nan;
 	POSINF = one/zero;
 	NEGINF = -one/zero;
+	assert( isnan(NaN) );
+	assert( isinf(POSINF) );
+	assert( isinf(NEGINF) );
 #endif
 
 	assert(state!=NULL);

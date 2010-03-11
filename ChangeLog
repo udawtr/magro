@@ -1,6 +1,11 @@
+2010-03-11 Wataru Uda <udawtr@gmail.com>
+	* src/mainapp: Fix donot set initial-values for NOT the first chain (ONLY set values for the first chain)
+	* src/mainapp: Fix fail to calculate in Windows environment with multi-chain
+	* src/tempaltes: Fix fail to build generated code in Windows environment
+
 2010-03-10 Wataru Uda <udawtr@gmail.com>
 	* src/clearsilver: Add modification version of ClearSilver
-    * src/mainapp/chain.c, src/parser_bugs/parser_bugs.c: Fix of compile with -O3 in Mac OS X 10.6.2
+	* src/mainapp/chain.c, src/parser_bugs/parser_bugs.c: Fix of compile with -O3 in Mac OS X 10.6.2
     * configure.in: Remove dependency for ClearSilver and Boehm'sGC
 	* vcsolution/* and more: Add Windows support with Visual C++ 2008 (Experimental)
 

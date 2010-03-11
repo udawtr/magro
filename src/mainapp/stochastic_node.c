@@ -42,22 +42,31 @@ STOCHASTIC_NODE* stochastic_node_create(MODEL* m)
 	STOCHASTIC_NODE* snode;
 
 	assert(m!=NULL);
-	snode = (STOCHASTIC_NODE*)GC_MALLOC(sizeof(STOCHASTIC_NODE));
-	node_init(&snode->node, m);
-	snode->node.nodetype = N_STOCHASTIC;
-	snode->value = 0.0;
-
-	return snode;
+	if( m != NULL )
+	{
+		snode = (STOCHASTIC_NODE*)GC_MALLOC(sizeof(STOCHASTIC_NODE));
+		if( snode != NULL )
+		{
+			node_init(&snode->node, m);
+			snode->node.nodetype = N_STOCHASTIC;
+			snode->value = 0.0;
+			return snode;
+		}
+	}
+	return NULL;
 }
 
 void stochastic_node_free(STOCHASTIC_NODE* snode)
 {
 	assert( snode != NULL);
-	snode->node.refcount--;
-	if( snode->node.refcount <= 0 )
+	if( snode != NULL )
 	{
-		node_destroy((NODE*)snode);
-		free(snode);
+		snode->node.refcount--;
+		if( snode->node.refcount <= 0 )
+		{
+			node_destroy((NODE*)snode);
+			free(snode);
+		}
 	}
 }
 
@@ -77,10 +86,11 @@ char* stochastic_node_toenvstring_logdensity(STOCHASTIC_NODE* snode)
     int i,n;
 
     assert(snode != NULL);
-	p = GC_MALLOC(sizeof(char*)*1);
-    p[0] = node_toenvstring((NODE*)snode);
     n = snode->node.parents->count;
+	p = GC_MALLOC(sizeof(char*)*n);
+    p[0] = node_toenvstring((NODE*)snode);
     assert(n < MAX_PARAM);
+
 
 	param = GC_MALLOC(sizeof(char*)*n);
     for( i = 0 ; i < n ; i++ )
@@ -89,7 +99,7 @@ char* stochastic_node_toenvstring_logdensity(STOCHASTIC_NODE* snode)
     }
    
     s =distribution_toenvstring_loglikelihood(snode->name, p, 1, param, (unsigned int)n);
-//	printf("stochastic_node_toenvstring_logdensity: [%s]\n", s);
+
 	return s;
 }
 
@@ -151,7 +161,8 @@ char* stochastic_node_tostring(STOCHASTIC_NODE* snode)
 {
     int nparam = snode->node.parents->count;
     char** sparams = GC_MALLOC(sizeof(char*) * nparam);
-    int i, sz, off;
+	int i;
+	unsigned int sz, off;
     char* buf;
     NODE* param;
 	const char* namestr;

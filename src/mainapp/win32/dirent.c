@@ -128,17 +128,25 @@ void rewinddir(DIR *dir)
 
 int mkdir(const char* pathname, int dummy)
 {
-	return CreateDirectory(pathname, NULL);
+	return CreateDirectoryA(pathname, NULL);
 }
 
 int chdir(const char* pathname)
 {
-	return SetCurrentDirectory(pathname);
+	if( SetCurrentDirectoryA(pathname) )
+	{
+		return 0;
+	}
+	return 1;
 }
 
-char *getcwd(char *buf, size_t size)
+char *getcwd(char *buf, int size)
 {
-	return GetCurrentDirectory(size, buf);
+	if( GetCurrentDirectoryA(size, buf) > 0 )
+	{
+		return buf;
+	}
+	return NULL;
 }
 
 #ifdef __cplusplus

@@ -35,15 +35,18 @@
 ARRAY_NODE* array_node_create(MODEL* m)
 {
 	ARRAY_NODE* array;
-	int i;
 
 	array = (ARRAY_NODE*)GC_MALLOC(sizeof(ARRAY_NODE));
-	node_init(&array->node, m);
-	array->node.nodetype = N_ARRAY;
-	
-	for( i = 0 ; i < ARRAY_MAX_DIMS ; i++ )
-		array->dims[i] = 1;
-	
+	if( array != NULL )
+	{
+		int i;
+		node_init(&array->node, m);
+		array->node.nodetype = N_ARRAY;
+		
+		for( i = 0 ; i < ARRAY_MAX_DIMS ; i++ )
+			array->dims[i] = 1;
+	}
+
 	return array;
 }
 
@@ -64,11 +67,14 @@ void array_node_setdimension(ARRAY_NODE* array, int* dims, int ndims)
 void array_node_free(ARRAY_NODE* array)
 {
 	assert(array != NULL);
-	array->node.refcount--;
-	if( array->node.refcount <= 0 )
+	if( array != NULL )
 	{
-		node_destroy((NODE*)array);
-		GC_FREE(array);
+		array->node.refcount--;
+		if( array->node.refcount <= 0 )
+		{
+			node_destroy((NODE*)array);
+			GC_FREE(array);
+		}
 	}
 }
 
@@ -76,11 +82,13 @@ char* array_node_tostring(ARRAY_NODE* array)
 {
 	int n;
 	char** sparams;
-	int i, i1, i2, i3, index[3], c, off, sz;
+	int i, i1, i2, i3, index[3], c;
+	unsigned int off, sz;
 	char* buf;
 
 	assert(array!=NULL);
-	
+	if( array == NULL ) return NULL;
+
 	n = array_node_getsize(array);
 	sparams = (char**)GC_MALLOC(sizeof(char*) * n);
 	sz = strlen(array->name);
@@ -97,27 +105,30 @@ char* array_node_tostring(ARRAY_NODE* array)
 	sz += 4 + n-1 + 2 + 100;
 
 	buf = (char*)GC_MALLOC(sizeof(char)*sz);
-	off = 0;
-
-	sprintf(buf, "structure(<%s>c(", array->name);
-	for( i = 0 ; i < c ; i++ )
+	if( buf != NULL )
 	{
-		strcat(buf, sparams[i]);
-		if( i < c-1 ) strcat(buf, ",");
-		GC_FREE(sparams[i]);
-	}
-	strcat(buf, "),Dim=c(");
-	for( i = 0 ; i < ARRAY_MAX_DIMS ; i ++ )
-	{
-		char tmp[100];
-		sprintf(tmp, "%d", array->dims[i]);
-		strcat(buf, tmp);
-		if( i < ARRAY_MAX_DIMS-1 ) 
-			strcat(buf, ",");
-	}
-	strcat(buf, "))");
+		off = 0;
 
-	assert(strlen(buf) < sz);
+		snprintf(buf, sz, "structure(<%s>c(", array->name);
+		for( i = 0 ; i < c ; i++ )
+		{
+			strcat(buf, sparams[i]);
+			if( i < c-1 ) strcat(buf, ",");
+			GC_FREE(sparams[i]);
+		}
+		strcat(buf, "),Dim=c(");
+		for( i = 0 ; i < ARRAY_MAX_DIMS ; i ++ )
+		{
+			char tmp[100];
+			snprintf(tmp, 100, "%d", array->dims[i]);
+			strcat(buf, tmp);
+			if( i < ARRAY_MAX_DIMS-1 ) 
+				strcat(buf, ",");
+		}
+		strcat(buf, "))");
+
+		assert(strlen(buf) < sz);
+	}
 
 	return buf;
 }
@@ -128,15 +139,19 @@ char* array_node_toenvstring(ARRAY_NODE* array)
 	int i, l;
 
 	assert(array!=NULL);
+	if( array == NULL) return NULL;
 	assert(array->node.model != NULL);
 
 	buf = (char*)GC_MALLOC_ATOMIC(sizeof(char) * (strlen(array->name)+50));
-	sprintf(buf, "env[index].%s", array->name);
-
-	l = strlen(array->name);
-	for( i = 4 ; i < l+4 ; i++ )
+	if( buf != NULL )
 	{
-		if( buf[i] == '.' ) buf[i] = '_';
+		sprintf(buf, "env[index].%s", array->name);
+
+		l = strlen(array->name);
+		for( i = 4 ; i < l+4 ; i++ )
+		{
+			if( buf[i] == '.' ) buf[i] = '_';
+		}
 	}
 
 	return buf; 
@@ -149,8 +164,11 @@ void array_node_setname(ARRAY_NODE* symbol, char* name)
     len = strlen(name);
 	sz = sizeof(char) * (len+1);
 	symbol->name = (char*)GC_MALLOC(sz);
-    memcpy(symbol->name, name, sz);
-	symbol->name[len] = '\0';
+	if( symbol->name != NULL )
+	{
+	    memcpy(symbol->name, name, sz);
+		symbol->name[len] = '\0';
+	}
 }
 
 int array_node_getsize(ARRAY_NODE* array)

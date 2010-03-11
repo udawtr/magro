@@ -25,6 +25,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -90,6 +91,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -102,6 +104,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -117,7 +120,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="0"
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="__VC;WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -139,6 +142,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="clearsilver.lib nmath.lib parser_bugs.lib parser_rdata.lib"
+				OutputFile="$(OutDir)\$(SolutionName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;$(TargetDir)&quot;"
 				GenerateDebugInformation="true"
@@ -167,6 +171,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>

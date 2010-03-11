@@ -167,6 +167,10 @@ void norm_sampler_update(NORM_SAMPLER* s, NMATH_STATE* ms)
 	postmean = xold + A/B;
 	postsd = sqrt(1/B);
 	xnew = rnorm(ms, postmean, postsd);
+	if( isnan(xnew) )
+	{
+		printf("BBBB");
+	}
 
 	stochastic_node_setvalue(snode, xnew);
 

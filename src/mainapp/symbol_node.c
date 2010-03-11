@@ -35,25 +35,34 @@
 SYMBOL_NODE* symbol_node_create(MODEL* m)
 {
 	SYMBOL_NODE* symbol;
+
 	symbol = (SYMBOL_NODE*)GC_MALLOC(sizeof(SYMBOL_NODE));
-	node_init(&symbol->node, m);
-	symbol->node.nodetype = N_SYMBOL;
+	if( symbol != NULL )
+	{
+		node_init(&symbol->node, m);
+		symbol->node.nodetype = N_SYMBOL;
+	}
+
 	return symbol;
 }
 
 void symbol_node_free(SYMBOL_NODE* symbol)
 {
 	assert(symbol != NULL);
-	symbol->node.refcount--;
-	if( symbol->node.refcount <= 0 )
+
+	if( symbol != NULL )
 	{
-		node_destroy((NODE*)symbol);
-		if( symbol->name != NULL )
+		symbol->node.refcount--;
+		if( symbol->node.refcount <= 0 )
 		{
-			GC_FREE(symbol->name);
-			symbol->name = NULL;
+			node_destroy((NODE*)symbol);
+			if( symbol->name != NULL )
+			{
+				GC_FREE(symbol->name);
+				symbol->name = NULL;
+			}
+			GC_FREE(symbol);
 		}
-		GC_FREE(symbol);
 	}
 }
 
@@ -92,39 +101,47 @@ char *_symbol_node_tostring(SYMBOL_NODE* symbol, int index_base)
 	assert(symbol != NULL);
 	assert(symbol->node.nodetype == N_SYMBOL);
 
-	nindex = symbol->node.parents->count;
-	sparams = (char**)GC_MALLOC_ATOMIC(sizeof(char*)*nindex);
-	sz = strlen(symbol->name);
-	for( i = 0 ; i < nindex ; i++ )
+	if( symbol != NULL )
 	{
-		CONSTANT_NODE* cnode = (CONSTANT_NODE*)symbol->node.parents->items[i];
-		sparams[i] = (char*)GC_MALLOC_ATOMIC(25);
-		sprintf(sparams[i], "%d", (int)cnode->value-1+index_base);
-		sz += strlen(sparams[i]);
-	}
-	sz += (nindex-1)+2+1;
-
-	buf = (char*)GC_MALLOC_ATOMIC(sizeof(char)*sz);
-	off = 0;	
-
-	sprintf(buf, "%s", symbol->name);	
-	if( nindex > 0 )
-	{
-		strcat(buf, "[");
+		nindex = symbol->node.parents->count;
+		sparams = (char**)GC_MALLOC_ATOMIC(sizeof(char*)*nindex);
+		sz = strlen(symbol->name);
 		for( i = 0 ; i < nindex ; i++ )
 		{
-			strcat(buf, sparams[i]);
-			if( i < nindex-1 )
-				strcat(buf, ",");
-			GC_FREE(sparams[i]);
-		}	
-		strcat(buf, "]");
+			CONSTANT_NODE* cnode = (CONSTANT_NODE*)symbol->node.parents->items[i];
+			sparams[i] = (char*)GC_MALLOC_ATOMIC(25);
+			snprintf(sparams[i], 25, "%d", (int)cnode->value-1+index_base);
+			sz += strlen(sparams[i]);
+		}
+		sz += (nindex-1)+2+1;
+
+		buf = (char*)GC_MALLOC_ATOMIC(sizeof(char)*sz);
+		if( buf != NULL )
+		{
+			off = 0;	
+
+			snprintf(buf, sz, "%s", symbol->name);	
+			if( nindex > 0 )
+			{
+				strcat(buf, "[");
+				for( i = 0 ; i < nindex ; i++ )
+				{
+					strcat(buf, sparams[i]);
+					if( i < nindex-1 )
+						strcat(buf, ",");
+					GC_FREE(sparams[i]);
+				}	
+				strcat(buf, "]");
+			}
+			GC_FREE(sparams);
+
+			assert(strlen(buf) < sz);
+
+			return buf;
+		}
 	}
-	GC_FREE(sparams);
 
-	assert(strlen(buf) < sz);
-
-	return buf;
+	return "[symbol]";
 }
 
 char* symbol_node_tostring(SYMBOL_NODE* symbol)

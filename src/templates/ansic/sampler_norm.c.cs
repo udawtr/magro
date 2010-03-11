@@ -22,7 +22,7 @@
 
 //double sampler_<?cs name:sampler ?>_mean = <?cs var:sampler.mean ?>;
 //double sampler_<?cs name:sampler ?>_prec = <?cs var:sampler.prec ?>;
-double sampler_<?cs name:sampler ?>_beta[NCHAIN][<?cs var:subcount(sampler.children) ?>];
+double sampler_<?cs name:sampler ?>_beta[NCHAIN][<?cs var:subcount(sampler.children) ?>+1];
 int sampler_<?cs name:sampler ?>_beta_init[NCHAIN];
 
 void sampler_<?cs name:sampler ?>_init()

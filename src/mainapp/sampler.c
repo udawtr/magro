@@ -116,6 +116,7 @@ const char* sampler_gettypestr(SAMPLER* s)
 		return "real";
 		break;
 	case S_UNKNOWN:
+	default:
 		return "unknown";
 	}
 }

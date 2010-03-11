@@ -28,7 +28,7 @@ void sampler_<?cs name:sampler ?>_term(){}
 
 double sampler_<?cs name:sampler ?>_logfullconditional(int index, NMATH_STATE *state)
 {
-    double lprior, llike;
+    double lprior, llike, lfc;
    
 	lprior = <?cs var:sampler.logdensity ?>;
 
@@ -38,25 +38,28 @@ double sampler_<?cs name:sampler ?>_logfullconditional(int index, NMATH_STATE *s
 <?cs /each
 ?>
 
-    double lfc = lprior + llike;
+    lfc = lprior + llike;
     return lfc;
 }
 
 void sampler_<?cs name:sampler ?>_update(int index, NMATH_STATE *state)
 {
-	double g0 = sampler_<?cs name:sampler ?>_logfullconditional(index,state);
-	double z = g0 - exponential(state);
+	double g, g0, z, xold, xnew, L, R;
+	int i,j,k;
+	
+	g0 = sampler_<?cs name:sampler ?>_logfullconditional(index,state);
+	z = g0 - exponential(state);
 
-	double xold = <?cs var:sampler.symbol ?>; 
-	double L = xold - uniform(state) * sampler_<?cs name:sampler ?>_width;
-	double R = L + sampler_<?cs name:sampler?>_width;
+	xold = <?cs var:sampler.symbol ?>; 
+	L = xold - uniform(state) * sampler_<?cs name:sampler ?>_width;
+	R = L + sampler_<?cs name:sampler?>_width;
 
 #ifdef _DEBUG
 	printf("*reals: g0=%%f, z=%%f, xold=%%f, L=%%f, R=%%f\n", g0, z, xold, L, R);
 #endif
 
-	int j = (int)(uniform(state) * sampler_<?cs name:sampler ?>_max);
-	int k = sampler_<?cs name:sampler ?>_max - 1 - j;
+	j = (int)(uniform(state) * sampler_<?cs name:sampler ?>_max);
+	k = sampler_<?cs name:sampler ?>_max - 1 - j;
 
 	<?cs var:sampler.symbol ?> = L;
 	while(j-- > 0 && sampler_<?cs name:sampler ?>_logfullconditional(index, state) > z) {
@@ -71,11 +74,10 @@ void sampler_<?cs name:sampler ?>_update(int index, NMATH_STATE *state)
 	}
 
 	// Keep sampling from the interval until acceptance ( the loop is guaranteed to terminate.)
-	double xnew;
 	for(;;){
 		xnew = L + uniform(state) * (R-L);
 		<?cs var:sampler.symbol ?> = xnew;
-		double g = sampler_<?cs name:sampler ?>_logfullconditional(index, state);
+		g = sampler_<?cs name:sampler ?>_logfullconditional(index, state);
 #ifdef _DEBUG
 		printf("      L=%%f, R=%%f, g=%%f, xnew=%%f\n",  L, R, g, xnew);
 #endif

@@ -30,6 +30,7 @@
 #ifdef __VC
 #include <windows.h>
 #define PATH_MAX _MAX_PATH
+#define snprintf	_snprintf
 #endif
 
 extern int mode_verbose;

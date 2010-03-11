@@ -108,11 +108,16 @@ double dbin_density(double x, double* par, unsigned int npar, int give_log, NMAT
 char* dbin_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
 {
 	char *size, *prob, *buff;
+	unsigned int sz;
+
 	assert(par!=NULL && npar>=2);
+
 	size = par[1];
 	prob = par[0];
-	buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(size) + strlen(prob) + 20));
-	sprintf(buff, "dbinom(state,%s, %s, %s, %d)", x, size, prob, give_log);
+
+	sz = sizeof(char) * (strlen(x) + strlen(size) + strlen(prob) + 40);
+	buff = (char*)GC_MALLOC_ATOMIC(sz);
+	snprintf(buff, sz, "dbinom(state,%s, %s, %s, %d)", x, size, prob, give_log);
 	return buff;
 }
 
@@ -209,6 +214,7 @@ char* distribution_toenvstring_loglikelihood(enum DISTTYPE name, char** x, unsig
 	if( name == DCAT ) return dcat_toenvstring_loglikelihood(x, length, par, npar);
 	if( distribution_isscalar(name) ) return distribution_toenvstring_scalarloglikelihood(name, x[0], par, npar);
 	else {
+		return "AAA";
 		fprintf(stderr, "distribution_loglikelihood: unknown distribution name %s\n", distribution_tostring(name));
 		exit(99);
 	}
