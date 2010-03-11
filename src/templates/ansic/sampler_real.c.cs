@@ -45,7 +45,7 @@ double sampler_<?cs name:sampler ?>_logfullconditional(int index, NMATH_STATE *s
 void sampler_<?cs name:sampler ?>_update(int index, NMATH_STATE *state)
 {
 	double g, g0, z, xold, xnew, L, R;
-	int i,j,k;
+	int j,k;
 	
 	g0 = sampler_<?cs name:sampler ?>_logfullconditional(index,state);
 	z = g0 - exponential(state);
