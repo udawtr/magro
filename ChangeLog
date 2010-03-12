@@ -1,3 +1,6 @@
+2010-03-13 Wataru Uda <udawtr@gmail.com>
+	* src/nmath: Add nmath functions: dnbinom, rnbinom, dpois, rpois, dchisq, rchisq, dexp, rexp, dlnorm, rlnorm, dlogis, rlogis, dunif, runif, dweibull, rweibull, dbeta, rbeta
+
 2010-03-11 Wataru Uda <udawtr@gmail.com>
 	* src/mainapp: Fix donot set initial-values for NOT the first chain (ONLY set values for the first chain)
 	* src/mainapp: Fix fail to calculate in Windows environment with multi-chain

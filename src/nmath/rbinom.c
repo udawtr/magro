@@ -42,10 +42,6 @@
 
 #define MT(p)	state->rbinom.p
 
-static double fmin2(double x, double y) {
-        return (x < y) ? x : y;
-}
-
 double rbinom(NMATH_STATE *state, double nin, double pp)
 {
     /* FIXME: These should become THREAD_specific globals : */

@@ -71,11 +71,19 @@ libnmath_a_AR = $(AR) $(ARFLAGS)
 libnmath_a_LIBADD =
 am_libnmath_a_OBJECTS = nmath.$(OBJEXT) RNG.$(OBJEXT) \
 	chebyshev.$(OBJEXT) expm1.$(OBJEXT) log1p.$(OBJEXT) \
-	qnorm.$(OBJEXT) rgamma.$(OBJEXT) rnorm.$(OBJEXT) \
-	sexp.$(OBJEXT) dgamma.$(OBJEXT) dbinom.$(OBJEXT) \
+	qnorm.$(OBJEXT) sexp.$(OBJEXT) dbinom.$(OBJEXT) \
 	rbinom.$(OBJEXT) bd0.$(OBJEXT) lgamma.$(OBJEXT) \
-	stirlerr.$(OBJEXT) dpois.$(OBJEXT) lgammacor.$(OBJEXT) \
-	gamma.$(OBJEXT) dnorm.$(OBJEXT)
+	stirlerr.$(OBJEXT) lgammacor.$(OBJEXT) gamma.$(OBJEXT) \
+	dnorm.$(OBJEXT) rnorm.$(OBJEXT) dgamma.$(OBJEXT) \
+	rgamma.$(OBJEXT) dpois.$(OBJEXT) rpois.$(OBJEXT) \
+	dbeta.$(OBJEXT) rbeta.$(OBJEXT) dnbinom.$(OBJEXT) \
+	rnbinom.$(OBJEXT) dchisq.$(OBJEXT) rchisq.$(OBJEXT) \
+	dexp.$(OBJEXT) rexp.$(OBJEXT) dunif.$(OBJEXT) runif.$(OBJEXT) \
+	dweibull.$(OBJEXT) rweibull.$(OBJEXT) dlnorm.$(OBJEXT) \
+	rlnorm.$(OBJEXT) rlogis.$(OBJEXT) dlogis.$(OBJEXT) \
+	dbeta.$(OBJEXT) rbeta.$(OBJEXT) fmax2.$(OBJEXT) \
+	fmin2.$(OBJEXT) imax2.$(OBJEXT) imin2.$(OBJEXT) \
+	fsign.$(OBJEXT)
 libnmath_a_OBJECTS = $(am_libnmath_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/mainapp
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -127,6 +135,7 @@ PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
 PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
@@ -178,7 +187,21 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libnmath.a
 lib_LIBRARIES = libnmath.a
-libnmath_a_SOURCES = nmath.h nmath.c RNG.c chebyshev.c expm1.c log1p.c qnorm.c rgamma.c rnorm.c sexp.c dgamma.c dbinom.c rbinom.c bd0.c lgamma.c stirlerr.c dpois.c lgammacor.c gamma.c dnorm.c
+libnmath_a_SOURCES = nmath.h nmath.c RNG.c chebyshev.c expm1.c log1p.c qnorm.c sexp.c dbinom.c rbinom.c bd0.c lgamma.c stirlerr.c lgammacor.c gamma.c \
+dnorm.c rnorm.c \
+dgamma.c rgamma.c \
+dpois.c rpois.c \
+dbeta.c rbeta.c \
+dnbinom.c rnbinom.c \
+dchisq.c rchisq.c \
+dexp.c rexp.c \
+dunif.c runif.c \
+dweibull.c rweibull.c \
+dlnorm.c rlnorm.c rlogis.c dlogis.c \
+dbeta.c rbeta.c \
+fmax2.c fmin2.c \
+imax2.c imin2.c fsign.c
+
 all: all-am
 
 .SUFFIXES:
@@ -262,20 +285,42 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RNG.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bd0.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/chebyshev.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbeta.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbinom.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dchisq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dexp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dgamma.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlnorm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlogis.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dnbinom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dnorm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dpois.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dunif.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dweibull.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/expm1.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fmax2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fmin2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fsign.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gamma.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imax2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imin2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgamma.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgammacor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log1p.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/nmath.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qnorm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rbeta.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rbinom.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rchisq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rexp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rgamma.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rlnorm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rlogis.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rnbinom.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rnorm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rpois.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/runif.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rweibull.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sexp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/stirlerr.Po@am__quote@
 

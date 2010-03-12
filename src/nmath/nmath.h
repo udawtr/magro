@@ -68,6 +68,16 @@ struct _GAMMAFN_STATE
     double xmin, xmax, xsml, dxrel;
 };
 
+struct _RPOIS_STATE
+{
+    int l, m;
+
+    double b1, b2, c, c0, c1, c2, c3;
+    double pp[36], p0, p, q, s, d, omega;
+    double big_l;/* integer "w/o overflow" */
+    double muprev, muprev2;/*, muold    = 0.*/
+};
+
 typedef struct _NMATH_STATE NMATH_STATE;
 struct _NMATH_STATE
 {
@@ -75,6 +85,7 @@ struct _NMATH_STATE
 	struct _RGAMMA_STATE rgamma;
 	struct _RBINOM_STATE rbinom;
 	struct _GAMMAFN_STATE gammafn;
+	struct _RPOIS_STATE rpois;
 };
 
 double rgamma(NMATH_STATE *state, double a, double scale);
@@ -87,6 +98,19 @@ double dgamma(NMATH_STATE *state, double x, double shape, double scale, int give
 double dpois_raw(NMATH_STATE *state, double shape, double scale, int give_log);
 double dbinom_raw(NMATH_STATE *state, double x, double n, double p, double q, int give_log);
 double dbinom(NMATH_STATE *state, double x, double n, double p, int give_log);
+
+double rchisq(NMATH_STATE *state, double df);
+double dchisq(NMATH_STATE *state, double x, double df, int give_log);
+double dnbinom(NMATH_STATE *state, double x, double n, double p, int give_log);
+double rnbinom(NMATH_STATE *state, double n /* size */, double p /* prob */);
+double dpois(NMATH_STATE *state, double x, double lambda, int give_log);
+double rpois(NMATH_STATE *state, double mu);
+double dexp(NMATH_STATE *state, double x, double scale, int give_log);
+double rexp(NMATH_STATE *state, double scale);
+double dweibull(NMATH_STATE *state, double x, double shape, double scale, int give_log);
+double rweibull(NMATH_STATE *state, double shape, double scale);
+double dunif(NMATH_STATE *state, double x, double a, double b, int give_log);
+double runif(NMATH_STATE *state, double a, double b);
 
 #define dnorm dnorm4
 double dnorm4(NMATH_STATE *state, double x, double mu, double sigma, int give_log);
@@ -104,6 +128,11 @@ double exponential(NMATH_STATE *state);
 void RNG_Init(NMATH_STATE *state, unsigned int seed);
 void NMath_Init(NMATH_STATE *state);
 
+double fmax2(double x, double y);
+double fmin2(double x, double y);
+int imax2(int x, int y);
+int imin2(int x, int y);
+double fsign(double x, double y);
 double bd0(double x, double np);
 double stirlerr(NMATH_STATE *state, double n);
 double lgammafn(NMATH_STATE *state, double x);

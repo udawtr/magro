@@ -63,6 +63,8 @@ void NMath_Init(NMATH_STATE *state)
 	state->gammafn.xsml = 0.0;
 	state->gammafn.dxrel = 0.0;
 
+	state->rpois.muprev = 0.0;
+	state->rpois.muprev2 = 0.0;
 }
 
 
