@@ -48,7 +48,10 @@ ARFLAGS = cru
 libdist_a_AR = $(AR) $(ARFLAGS)
 libdist_a_LIBADD =
 am_libdist_a_OBJECTS = dcat.$(OBJEXT) dbin.$(OBJEXT) dgamma.$(OBJEXT) \
-	dnorm.$(OBJEXT)
+	dnorm.$(OBJEXT) dbern.$(OBJEXT) dnegbin.$(OBJEXT) \
+	dpois.$(OBJEXT) dbeta.$(OBJEXT) dchisq.$(OBJEXT) \
+	dexp.$(OBJEXT) dlnorm.$(OBJEXT) dunif.$(OBJEXT) \
+	dweib.$(OBJEXT)
 libdist_a_OBJECTS = $(am_libdist_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/mainapp
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -151,7 +154,7 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 noinst_LIBRARIES = libdist.a
-libdist_a_SOURCES = dcat.c dbin.c dgamma.c dnorm.c
+libdist_a_SOURCES = dcat.c dbin.c dgamma.c dnorm.c dbern.c dnegbin.c dpois.c dbeta.c dchisq.c dexp.c dlnorm.c dunif.c dweib.c
 all: all-am
 
 .SUFFIXES:
@@ -200,10 +203,19 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbern.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbeta.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dbin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dcat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dchisq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dexp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dgamma.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dlnorm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dnegbin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dnorm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dpois.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dunif.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dweib.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
