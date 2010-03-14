@@ -159,11 +159,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dbeta.c"
+				>
+			</File>
+			<File
 				RelativePath=".\dbinom.c"
 				>
 			</File>
 			<File
+				RelativePath=".\dchisq.c"
+				>
+			</File>
+			<File
+				RelativePath=".\dexp.c"
+				>
+			</File>
+			<File
 				RelativePath=".\dgamma.c"
+				>
+			</File>
+			<File
+				RelativePath=".\dlnorm.c"
+				>
+			</File>
+			<File
+				RelativePath=".\dlogis.c"
+				>
+			</File>
+			<File
+				RelativePath=".\dnbinom.c"
 				>
 			</File>
 			<File
@@ -175,11 +199,43 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dunif.c"
+				>
+			</File>
+			<File
+				RelativePath=".\dweibull.c"
+				>
+			</File>
+			<File
 				RelativePath=".\expm1.c"
 				>
 			</File>
 			<File
+				RelativePath=".\fmax2.c"
+				>
+			</File>
+			<File
+				RelativePath=".\fmin2.c"
+				>
+			</File>
+			<File
+				RelativePath=".\fsign.c"
+				>
+			</File>
+			<File
 				RelativePath=".\gamma.c"
+				>
+			</File>
+			<File
+				RelativePath=".\imax2.c"
+				>
+			</File>
+			<File
+				RelativePath=".\imin2.c"
+				>
+			</File>
+			<File
+				RelativePath=".\lbeta.c"
 				>
 			</File>
 			<File
@@ -203,11 +259,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\rbeta.c"
+				>
+			</File>
+			<File
 				RelativePath=".\rbinom.c"
 				>
 			</File>
 			<File
+				RelativePath=".\rchisq.c"
+				>
+			</File>
+			<File
+				RelativePath=".\rexp.c"
+				>
+			</File>
+			<File
 				RelativePath=".\rgamma.c"
+				>
+			</File>
+			<File
+				RelativePath=".\rlnorm.c"
+				>
+			</File>
+			<File
+				RelativePath=".\rlogis.c"
 				>
 			</File>
 			<File
@@ -216,6 +292,18 @@
 			</File>
 			<File
 				RelativePath=".\rnorm.c"
+				>
+			</File>
+			<File
+				RelativePath=".\rpois.c"
+				>
+			</File>
+			<File
+				RelativePath=".\runif.c"
+				>
+			</File>
+			<File
+				RelativePath=".\rweibull.c"
 				>
 			</File>
 			<File
@@ -232,6 +320,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\dpq.h"
+				>
+			</File>
 			<File
 				RelativePath=".\nmath.h"
 				>

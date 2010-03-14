@@ -138,7 +138,8 @@ void compiler_buildrelations(COMPILER* c, BUGS_NODE* node)
 		case BN_DETERMREL:
 			var = rel->params->items[0];
 			func = rel->params->items[1];
-			model_addrelation(c->model, compiler_eval(c,var), compiler_eval(c,func));
+			symbol = compiler_eval(c,var);
+			model_addrelation(c->model, symbol, compiler_eval(c,func));
 			break;
 			
 		default:
@@ -471,65 +472,70 @@ void compiler_setrdata(COMPILER* c, RDATA_NODE* rnode)
 	}
 } 
 
-void __compiler_resolvesymbols(NODE**, NODE**, int, NODE**);
+int __compiler_resolvesymbols(COMPILER* c, NODE**, NODEDIC* dic);
 
-void __compiler_resolvesymbols(NODE** pnode, NODE** symbols, int nsymbols, NODE** targets)
+int __compiler_resolvesymbols(COMPILER* c, NODE** pnode, NODEDIC* dic)
 {
-	int i,n;
+	int i,n,count;
+	NODE* target;
 	NODE* node = *pnode;
 
-	assert(pnode!=NULL && symbols!=NULL);
+	assert(pnode!=NULL && dic!=NULL);
 
-	if( node->nodetype != N_SYMBOL )
+	count = 0;
+	//if( node->nodetype != N_SYMBOL )
 	{
 		n = node->parents->count;
 		for( i = 0 ; i < n ; i++ )
 		{
-			__compiler_resolvesymbols(&node->parents->items[i], symbols, nsymbols, targets);
+			count += __compiler_resolvesymbols(c, &node->parents->items[i], dic);
 		}
 	}
-	else
-	{
-		for( i = 0 ; i < nsymbols ; i++ )
-		{
-			//assert(node->nodetype == N_SYMBOL);
-			//assert(symbols[i]->nodetype == N_SYMBOL);
 
-			if( NP(node) != NP(symbols[i])
-			 && symbol_node_compare((SYMBOL_NODE*)node, (SYMBOL_NODE*)symbols[i]) == 0 )
+	if( node->nodetype == N_SYMBOL )
+	{
+		//printf("resolvesymbol: finding %s ... ", node_tostring(node));
+		target = nodedic_findnode_byliteral(dic, node_tostring(node));
+		if( target != NULL )
+		{
+			if( target->nodetype == N_FUNCTION && node_isfixed(target) )
 			{
-				//node_free(*pnode);
-				*pnode = targets[i];
+				CONSTANT_NODE* cnode = constant_node_create(c->model);
+				constant_node_setvalue(cnode, function_node_getvalue((FUNCTION_NODE*)target));
+				//printf("[FIXED]");
+				*pnode = cnode;
 			}
+			else
+			{
+				*pnode = target;
+			}
+			//printf("OK\n");
+			count++;
 		}
+		//else
+			//printf("NG\n");
 	}
+
+	return count;
 }
 
 void compiler_resolvesymbols(COMPILER* c)
 {
-	int i, n;
-	NODE** symbols;
+	int i, n, count;
+	SYMBOL_NODE** symbols;
 	NODE** targets;
 
 	assert(c!=NULL);
 	
 	n = c->model->relations->count;
-	symbols = (NODE**)GC_MALLOC(sizeof(NODE*) * n); 
-	targets = (NODE**)GC_MALLOC(sizeof(NODE*) * n);
-	for( i = 0 ; i < n ; i++ )
+	do
 	{
-        NODE_CHECK(c->model->relations->symbols[i]);
-        NODE_CHECK(c->model->relations->items[i]);
-		symbols[i] = c->model->relations->symbols[i]; 
-		targets[i] = c->model->relations->items[i];
-		NODE_CHECK(symbols[i]);
-		NODE_CHECK(targets[i]);
-	}
-	
-	for( i = 0 ; i < n ; i++ )
-	{
-		__compiler_resolvesymbols(&c->model->relations->items[i], symbols, n, targets);
-	}
+		count = 0;
+		for( i = 0 ; i < n ; i++ )
+		{
+			count +=__compiler_resolvesymbols(c, &c->model->relations->items[i], c->model->relations);
+		}
+	}while(count > 0 );
 	
 	if( mode_verbose > 2 )
 	{
@@ -537,8 +543,8 @@ void compiler_resolvesymbols(COMPILER* c)
 		for( i = 0 ; i < n ; i++ )
 		{
 			char *s1, *s2;
-			s1 = node_tostring((NODE*)symbols[i]);
-			s2 = node_tostring(targets[i]);
+			s1 = node_tostring((NODE*)c->model->relations->symbols[i]);
+			s2 = node_tostring(c->model->relations->items[i]);
 			printf("%s = %s\n", s1, s2);
 			GC_FREE(s1);
 			GC_FREE(s2);
@@ -569,7 +575,7 @@ void __compiler_resolvechildren(NODE* node)
 		NODE_CHECK(parent);
 		if( nodelist_contains(parent->children, node) == 0 )
 		{
-			NODE* sym = nodedic_findsymbol(node->model->relations, node);
+			SYMBOL_NODE* sym = nodedic_findsymbol(node->model->relations, node);
 			//printf("__compiler_resolvechildren: add child %s to parent %s\n",
 			//	node_tostring(sym != NULL ? sym : node),
 			//	node_tostring(nodedic_findsymbol(node->model->relations, parent)));
@@ -820,7 +826,9 @@ void compiler_compile(COMPILER* c,  BUGS_NODE* pnode)
 		printf("***BEGIN DUMP RELATIONS***\n");
 		for( i = 0 ; i < n ; i++ )
 		{
-			printf("[%s]: %s\n", node_tostring(c->model->relations->symbols[i]), node_tostring(c->model->relations->items[i]));
+			SYMBOL_NODE* sym = (SYMBOL_NODE*)c->model->relations->symbols[i];
+			assert(sym->node.nodetype == N_SYMBOL);
+			printf("[%s]: %s\n", symbol_node_tostring(sym), node_tostring(c->model->relations->items[i]));
 		}	
 		printf("***END DUMP RELATIONS***\n");
 	}
@@ -857,7 +865,7 @@ void compiler_compile(COMPILER* c,  BUGS_NODE* pnode)
 		for( i = 0 ; i < n ; i++ )
 		{
 			printf("%s: (%s) order=%d, isobserved=%d, nchildren=%d, nparents=%d\n", 
-			node_tostring(nodedic_findsymbol(c->model->relations, graph->items[i])),
+			symbol_node_tostring(nodedic_findsymbol(c->model->relations, graph->items[i])),
 			node_tostring(graph->items[i]), graph->items[i]->order, node_isobserved(graph->items[i]), graph->items[i]->children->count, graph->items[i]->parents->count);
 			for( j = 0 ; j < graph->items[i]->parents->count ; j++ )
 			{
@@ -931,7 +939,7 @@ void compiler_savehdf(COMPILER* c, FILE* fp, char** monitor, int nmonitor, int b
 	for( i = slist->count-1 ; i >= 0 ; i-- )
 	{
 		fprintf(fp,"\t%s {\n", env_getenvstring(sampler_getvarname((SAMPLER*)slist->items[i], c->model)));
-		fprintf(fp,"\t\tsymbol = %s\n", node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)slist->items[i]->snode)));
+		fprintf(fp,"\t\tsymbol = %s\n", symbol_node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)slist->items[i]->snode)));
 		fprintf(fp,"\t\ttype = %s\n", sampler_gettypestr((SAMPLER*)slist->items[i]));
 		fprintf(fp,"\t\tdistribution = %s\n", distribution_tostring(slist->items[i]->snode->name));
 		fprintf(fp,"\t\tmean = %s\n", node_toenvstring(slist->items[i]->snode->node.parents->items[0]));
@@ -943,7 +951,7 @@ void compiler_savehdf(COMPILER* c, FILE* fp, char** monitor, int nmonitor, int b
         for( j = 0 ; j < list->count ; j++ )
         {
 			fprintf(fp,"\t\t\t%d {\n", j);
-			fprintf(fp,"\t\t\t\tsymbol = %s\n", node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)list->items[j])));
+			fprintf(fp,"\t\t\t\tsymbol = %s\n", symbol_node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)list->items[j])));
 			fprintf(fp,"\t\t\t\tmean = %s\n", node_toenvstring((NODE*)list->items[j]->parents->items[0])); 
 			fprintf(fp,"\t\t\t\tprec = %s\n", node_toenvstring((NODE*)list->items[j]->parents->items[1])); 
 			fprintf(fp,"\t\t\t\tlogdensity = %s\n", stochastic_node_toenvstring_logdensity((STOCHASTIC_NODE*)list->items[j])); 

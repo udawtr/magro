@@ -58,7 +58,15 @@ void model_addrelation(MODEL* m, NODE* symbol, NODE* rel)
 	assert( rel != NULL );
 	assert( rel->nodetype == N_STOCHASTIC || rel->nodetype == N_FUNCTION || rel->nodetype == N_CONSTANT);
 
-	nodedic_add(m->relations, symbol, rel);
+	if( symbol->nodetype == N_CONSTANT )
+	{
+		SYMBOL_NODE* _s = symbol_node_create(m);
+		symbol_node_setname(_s, ((CONSTANT_NODE*)symbol)->name);
+		symbol = (NODE*)_s;
+	}
+
+	assert(symbol->nodetype == N_SYMBOL);
+	nodedic_add(m->relations, (SYMBOL_NODE*)symbol, rel);
 }
 
 void model_addsampler(MODEL* m, SAMPLER* sampler)

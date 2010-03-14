@@ -26,6 +26,7 @@
 #include <assert.h>
 
 #include "../../nmath/nmath.h"
+#include "../conf.h"
 #include "dbin.h"
 
 double dbin_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE* ms)

@@ -221,11 +221,37 @@ double (*func_getvalue[8])(NODE* node) = {
 	function_node_getvalue //N_FUNCTION
 };
 
+int node_isfixed(NODE* node)
+{
+	switch(node->nodetype)
+	{
+	case N_CONSTANT:
+		return 1;
+	case N_STOCHASTIC:
+		return 0;
+	case N_ARRAY:
+	case N_FUNCTION:
+		{
+			int i,n = node->parents->count;
+			for( i = 0 ; i < n ; i++ )
+			{
+				if( node_isfixed(node->parents->items[i]) == 0)
+				{
+					return 0;
+				}
+			}
+			return 1;
+		}
+	default:
+		return 0;
+	}
+}
+
 double node_getvalue(NODE* node)
 {
 	char *tmp;
 	assert(node != NULL);
-	//if( func_getvalue[node->nodetype] != NULL )
+	if( func_getvalue[node->nodetype] != NULL )
 	{
 		return func_getvalue[node->nodetype](node);
 	}
@@ -250,7 +276,7 @@ double node_getvalue(NODE* node)
 		printf("node_getvalue: can't get value [node type:N_RANGE]\n");
 		break;
 	case N_SYMBOL:
-		printf("node_getvalue: can't get value [node type:N_SYMBOL]\n");
+		printf("node_getvalue: can't get value [node type:N_SYMBOL; '%s']\n", symbol_node_tostring((SYMBOL_NODE*)node));
 		break;
 	}
 	return 0.0;
@@ -433,12 +459,12 @@ NODEDIC* nodedic_create()
 	return dic;
 }
 
-void nodedic_add(NODEDIC* pnodelist, NODE* symbol, NODE* pnode)
+void nodedic_add(NODEDIC* pnodelist, SYMBOL_NODE* symbol, NODE* pnode)
 {
     NODE** pnewitems;
     NODE** polditems = pnodelist->items;
-	NODE** pnewsymbols;
-	NODE** poldsymbols = pnodelist->symbols;
+	SYMBOL_NODE** pnewsymbols;
+	SYMBOL_NODE** poldsymbols = pnodelist->symbols;
 	int count = pnodelist->count + 1;
 
     pnewitems = (NODE**)GC_MALLOC(sizeof(NODE*) * count);
@@ -452,15 +478,15 @@ void nodedic_add(NODEDIC* pnodelist, NODE* symbol, NODE* pnode)
 	pnode->refcount++;
     pnodelist->items = pnewitems;
 
-	pnewsymbols = (NODE**)GC_MALLOC(sizeof(NODE*) * count);
+	pnewsymbols = (SYMBOL_NODE**)GC_MALLOC(sizeof(SYMBOL_NODE*) * count);
 	if( poldsymbols != NULL )
 	{
-		memcpy(pnewsymbols, poldsymbols, sizeof(NODE*) * (count-1));
+		memcpy(pnewsymbols, poldsymbols, sizeof(SYMBOL_NODE*) * (count-1));
 		GC_FREE(poldsymbols);
 		poldsymbols = NULL;
 	}
 	pnewsymbols[count-1] = symbol;
-	symbol->refcount++;
+	symbol->node.refcount++;
 	pnodelist->symbols = pnewsymbols;
 
     pnodelist->count = count;
@@ -478,14 +504,14 @@ int nodedic_contains(NODEDIC* dic, NODE* node)
     return 0;
 }
 
-NODE* nodedic_findsymbol(NODEDIC* dic, NODE* node)
+SYMBOL_NODE* nodedic_findsymbol(NODEDIC* dic, NODE* node)
 {
     int i, n;
     assert( dic != NULL && node != NULL );
     n = dic->count;
     for( i = 0 ; i < n ; i++ )
     {
-        if( dic->items[i] == node ) return dic->symbols[i];;
+        if( dic->items[i] == node ) return dic->symbols[i];
     }
     return NULL;
 }
@@ -498,7 +524,7 @@ NODE* nodedic_findnode_byliteral(NODEDIC* dic, char* literal)
 	n = dic->count;
 	for( i = 0 ; i < n ; i++ )
 	{
-		char *s = node_tostring(dic->symbols[i]);
+		char *s = symbol_node_tostring(dic->symbols[i]);
 		if( strcmp(s, literal) == 0 )
 		{
 			GC_FREE(s);
@@ -515,7 +541,7 @@ void nodedic_free(NODEDIC* dic)
     assert(dic!= NULL);
 	for( i = 0 ; i < dic->count ; i++ )
 	{
-		node_free(dic->symbols[i]);
+		symbol_node_free(dic->symbols[i]);
 		node_free(dic->items[i]);
 		dic->symbols[i] = NULL;
 		dic->items[i] = NULL;

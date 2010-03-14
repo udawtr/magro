@@ -61,7 +61,7 @@ double dbeta(NMATH_STATE *state, double x, double a, double b, int give_log)
 	/* b == 1 : */ return(R_D_val(a));
     }
     if (a <= 2 || b <= 2)
-	lval = (a-1)*log(x) + (b-1)*log1p(-x) - lbeta(a, b);
+	lval = (a-1)*log(x) + (b-1)*log1p(-x) - lbeta(state, a, b);
     else
 	lval = log(a+b-1) + dbinom_raw(state, a-1, a+b-2, x, 1-x, TRUE);
 

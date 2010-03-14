@@ -414,7 +414,7 @@ void chain_savehdf(CHAIN* chain, FILE* fp, char** monitor, int nmonitor, int bur
 		for( i = slist->count-1 ; i >= 0 ; i-- )
     	{
        		fprintf(fp,"\t\t%s {\n", env_getenvstring(sampler_getvarname((SAMPLER*)slist->items[i], c->model)));
-        	fprintf(fp,"\t\t\tsymbol = %s\n", node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)slist->items[i]->snode)));
+        	fprintf(fp,"\t\t\tsymbol = %s\n", symbol_node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)slist->items[i]->snode)));
         	fprintf(fp,"\t\t\ttype = %s\n", sampler_gettypestr((SAMPLER*)slist->items[i]));
         	fprintf(fp,"\t\t\tdistribution = %s\n", distribution_tostring(slist->items[i]->snode->name));
         	fprintf(fp,"\t\t\tmean = %s\n", node_toenvstring(slist->items[i]->snode->node.parents->items[0]));
@@ -426,7 +426,7 @@ void chain_savehdf(CHAIN* chain, FILE* fp, char** monitor, int nmonitor, int bur
         	for( j = 0 ; j < list->count ; j++ )
         	{
         	    fprintf(fp,"\t\t\t\t%d {\n", j);
-        	    fprintf(fp,"\t\t\t\t\tsymbol = %s\n", node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)list->items[j])));
+        	    fprintf(fp,"\t\t\t\t\tsymbol = %s\n", symbol_node_toenvstring(nodedic_findsymbol(c->model->relations, (NODE*)list->items[j])));
         	    fprintf(fp,"\t\t\t\t\tmean = %s\n", node_toenvstring((NODE*)list->items[j]->parents->items[0]));
         	    fprintf(fp,"\t\t\t\t\tprec = %s\n", node_toenvstring((NODE*)list->items[j]->parents->items[1]));
         	    fprintf(fp,"\t\t\t\t\tlogdensity = %s\n", stochastic_node_toenvstring_logdensity((STOCHASTIC_NODE*)list->items[j]));

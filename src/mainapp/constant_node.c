@@ -69,9 +69,9 @@ char* constant_node_tostring(CONSTANT_NODE* constant)
 	assert(constant != NULL);
 
 	buf  = (char*)GC_MALLOC(sizeof(char) * 255);
-	if( constant->name != NULL )
-		sprintf(buf, "%s", constant->name);
-	else
+	//if( constant->name != NULL )
+	//	sprintf(buf, "%s", constant->name);
+	//else
 		sprintf(buf, "%f", constant_node_getvalue(constant));
 	return buf;
 }

@@ -71,18 +71,69 @@ int symbol_node_compare(SYMBOL_NODE* s1, SYMBOL_NODE* s2)
 	int i, n;
 	if( s1 != NULL && s2 != NULL && s1->node.nodetype == N_SYMBOL && s2->node.nodetype == N_SYMBOL)
 	{
+		printf("%s compare with %s\n", node_tostring(s1), node_tostring(s2));
+		if( strcmp(node_tostring(s1), node_tostring(s2) ) == 0 ) return 0;
+		return -1;
+
 		if( strcmp(s1->name, s2->name) != 0 )
 		{
 			return 1;
 		}
-		else if( s1->node.parents->count == s2->node.parents->count )
+
+		if( s1->node.parents->count == s2->node.parents->count )
 		{
 			n = s1->node.parents->count;
 			for( i = 0 ; i < n ; i++ )
 			{
-				if( node_getvalue(s1->node.parents->items[i]) != node_getvalue(s2->node.parents->items[i]) )
+				NODE *p1, *p2;
+				CONSTANT_NODE *c1, *c2;
+				p1 = s1->node.parents->items[i];
+				p2 = s2->node.parents->items[i];
+				c1 = (CONSTANT_NODE*)p1;
+				c2 = (CONSTANT_NODE*)p2;
+				if( p1->nodetype == N_SYMBOL && p2->nodetype == N_SYMBOL )
 				{
-					return -2;
+					printf("%s compare with %s", node_tostring(p1), node_tostring(p2));
+					if( strcmp(node_tostring(p1), node_tostring(p2) ) != 0 )
+					{
+						printf(" NEQ\n");
+						return -2;
+					}
+					printf(" EQ\n");
+					return 0;
+				}
+				else if( p1->nodetype == N_CONSTANT && p2->nodetype == N_SYMBOL )
+				{
+					printf("%s compare with %s", c1->name, node_tostring(p2));
+					if( strcmp(c1->name, node_tostring(p2) ) != 0 )
+					{
+						printf(" NEQ\n");
+						return -2;
+					}
+					printf(" EQ\n");
+					return 0;
+				}
+				else if( p1->nodetype == N_SYMBOL && p2->nodetype == N_CONSTANT )
+				{
+					printf("%s compare with %s", node_tostring(p1), c2->name);
+					if( strcmp(node_tostring(p1), c2->name ) != 0 )
+					{
+						printf(" NEQ\n");
+						return -2;
+					}
+					printf(" EQ\n");
+					return 0;
+				}
+				else
+				{
+					printf("%f compare with %f", node_getvalue(p1), node_getvalue(p2));
+					if( node_getvalue(p1) != node_getvalue(p2) )
+					{
+						printf(" NEQ\n");
+						return -2;
+					}
+					printf(" EQ\n");
+					return 0;
 				}
 			}
 			return 0;
@@ -108,9 +159,10 @@ char *_symbol_node_tostring(SYMBOL_NODE* symbol, int index_base)
 		sz = strlen(symbol->name);
 		for( i = 0 ; i < nindex ; i++ )
 		{
-			CONSTANT_NODE* cnode = (CONSTANT_NODE*)symbol->node.parents->items[i];
-			sparams[i] = (char*)GC_MALLOC_ATOMIC(25);
-			snprintf(sparams[i], 25, "%d", (int)cnode->value-1+index_base);
+			NODE* p = symbol->node.parents->items[i];
+			char* s = node_tostring(p);
+			sparams[i] = (char*)GC_MALLOC_ATOMIC(sizeof(char)*(strlen(s)+1));
+			snprintf(sparams[i], strlen(s)+1, "%s", s);
 			sz += strlen(sparams[i]);
 		}
 		sz += (nindex-1)+2+1;

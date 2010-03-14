@@ -122,7 +122,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="__VC;WIN32;NDEBUG;_CONSOLE"
+				PreprocessorDefinitions="__VC;WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -200,11 +200,63 @@
 				>
 			</File>
 			<File
+				RelativePath=".\distributions\dbern.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dbeta.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dbin.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dcat.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dchisq.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dexp.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dgamma.c"
+				>
+			</File>
+			<File
 				RelativePath=".\win32\dirent.c"
 				>
 			</File>
 			<File
 				RelativePath=".\distribution.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dlnorm.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dnegbin.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dnorm.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dpois.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dunif.c"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dweib.c"
 				>
 			</File>
 			<File
@@ -278,11 +330,63 @@
 				>
 			</File>
 			<File
+				RelativePath=".\distributions\dbern.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dbeta.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dbin.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dcat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dchisq.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dexp.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dgamma.h"
+				>
+			</File>
+			<File
 				RelativePath=".\win32\dirent.h"
 				>
 			</File>
 			<File
 				RelativePath=".\distribution.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dlnorm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dnegbin.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dnorm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dpois.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dunif.h"
+				>
+			</File>
+			<File
+				RelativePath=".\distributions\dweib.h"
 				>
 			</File>
 			<File

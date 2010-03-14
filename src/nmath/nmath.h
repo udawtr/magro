@@ -99,6 +99,10 @@ double dpois_raw(NMATH_STATE *state, double shape, double scale, int give_log);
 double dbinom_raw(NMATH_STATE *state, double x, double n, double p, double q, int give_log);
 double dbinom(NMATH_STATE *state, double x, double n, double p, int give_log);
 
+double dbeta(NMATH_STATE *state, double x, double a, double b, int give_log);
+double rbeta(NMATH_STATE *state, double aa, double bb);
+double lbeta(NMATH_STATE *state, double a, double b);
+
 double rchisq(NMATH_STATE *state, double df);
 double dchisq(NMATH_STATE *state, double x, double df, int give_log);
 double dnbinom(NMATH_STATE *state, double x, double n, double p, int give_log);

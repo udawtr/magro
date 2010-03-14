@@ -78,7 +78,7 @@ struct _NODELIST {
 
 struct _NODEDIC {
 	int count;
-	NODE** symbols;
+	SYMBOL_NODE** symbols;
 	NODE** items;
 };
 
@@ -131,6 +131,7 @@ int node_isobserved(NODE* node);
 void node_setobserved(NODE* node);
 int node_isinitialized(NODE* node);
 void node_setinitialized(NODE* node);
+int node_isfixed(NODE* node);
 double node_getvalue(NODE* node);
 void node_setvalue(NODE* node, double value);
 int node_checkancestorsobserved(NODE* node);
@@ -147,9 +148,9 @@ int nodelist_contains(NODELIST* nodelist, NODE* node);
 void nodelist_free(NODELIST* list);
 
 NODEDIC* nodedic_create();
-void nodedic_add(NODEDIC* nodelist, NODE* symbol, NODE* node);
+void nodedic_add(NODEDIC* nodelist, SYMBOL_NODE* symbol, NODE* node);
 int nodedic_contains(NODEDIC* nodelist, NODE* node);
-NODE* nodedic_findsymbol(NODEDIC* dic, NODE* node);
+SYMBOL_NODE* nodedic_findsymbol(NODEDIC* dic, NODE* node);
 NODE* nodedic_findnode_byliteral(NODEDIC* dic, char* literal);
 void nodedic_free(NODEDIC* list);
 
