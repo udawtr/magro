@@ -74,7 +74,7 @@ AUTOMAKE = ${SHELL} /Users/uda/Projects/magro/trunk/missing --run automake-1.11
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -I/opt/local/include -W -Wall -O3
+CFLAGS = -I/opt/local/include -W -Wall -g
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo

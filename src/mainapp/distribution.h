@@ -74,6 +74,12 @@ double distribution_random(enum DISTTYPE name, double* par, unsigned int npar, N
 #include "distributions/dgamma.h"
 #include "distributions/dnorm.h"
 #include "distributions/dcat.h"
+#include "distributions/dbern.h"
+#include "distributions/dweib.h"
+#include "distributions/dexp.h"
+#include "distributions/dunif.h"
+#include "distributions/dpois.h"
+#include "distributions/dbeta.h"
 
 char* distribution_toenvstring_loglikelihood(enum DISTTYPE name, char** x, unsigned int length, char** par, unsigned int npar);
 char* distribution_toenvstring_scalarloglikelihood(enum DISTTYPE name, char* x, char** par, unsigned int npar);

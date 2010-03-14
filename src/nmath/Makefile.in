@@ -81,9 +81,9 @@ am_libnmath_a_OBJECTS = nmath.$(OBJEXT) RNG.$(OBJEXT) \
 	dexp.$(OBJEXT) rexp.$(OBJEXT) dunif.$(OBJEXT) runif.$(OBJEXT) \
 	dweibull.$(OBJEXT) rweibull.$(OBJEXT) dlnorm.$(OBJEXT) \
 	rlnorm.$(OBJEXT) rlogis.$(OBJEXT) dlogis.$(OBJEXT) \
-	dbeta.$(OBJEXT) rbeta.$(OBJEXT) fmax2.$(OBJEXT) \
-	fmin2.$(OBJEXT) imax2.$(OBJEXT) imin2.$(OBJEXT) \
-	fsign.$(OBJEXT)
+	dbeta.$(OBJEXT) rbeta.$(OBJEXT) lbeta.$(OBJEXT) \
+	fmax2.$(OBJEXT) fmin2.$(OBJEXT) imax2.$(OBJEXT) \
+	imin2.$(OBJEXT) fsign.$(OBJEXT)
 libnmath_a_OBJECTS = $(am_libnmath_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)/src/mainapp
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -198,7 +198,7 @@ dexp.c rexp.c \
 dunif.c runif.c \
 dweibull.c rweibull.c \
 dlnorm.c rlnorm.c rlogis.c dlogis.c \
-dbeta.c rbeta.c \
+dbeta.c rbeta.c lbeta.c \
 fmax2.c fmin2.c \
 imax2.c imin2.c fsign.c
 
@@ -304,6 +304,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gamma.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imax2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/imin2.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lbeta.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgamma.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/lgammacor.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/log1p.Po@am__quote@

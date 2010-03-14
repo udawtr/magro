@@ -11,7 +11,7 @@ dexp.c rexp.c \
 dunif.c runif.c \
 dweibull.c rweibull.c \
 dlnorm.c rlnorm.c rlogis.c dlogis.c \
-dbeta.c rbeta.c \
+dbeta.c rbeta.c lbeta.c \
 fmax2.c fmin2.c \
 imax2.c imin2.c fsign.c
 

@@ -8,6 +8,8 @@
 #define FALSE 0
 #endif
 
+#define M_LN_SQRT_2PI	0.918938533204672741780329736406	/* log(sqrt(2*pi)) */
+
 /* give_log in "d";  log_p in "p" & "q" : */
 #define give_log log_p
 							/* "DEFAULT" */

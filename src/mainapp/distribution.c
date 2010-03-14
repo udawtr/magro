@@ -76,6 +76,11 @@ double distribution_density(enum DISTTYPE name, double x, double* par, unsigned 
 	case DBIN:  return dbin_density(x, par, npar, give_log, ms);
 	case DGAMMA: return dgamma_density(x, par, npar, give_log, ms);
 	case DNORM: return dnorm_density(x, par, npar, give_log, ms);
+	case DBERN: return dbern_density(x, par, npar, give_log, ms);
+	case DPOIS: return dpois_density(x, par, npar, give_log, ms);
+	case DBETA: return dbeta_density(x, par, npar, give_log, ms);
+	case DUNIF: return dunif_density(x, par, npar, give_log, ms);
+	case DWEIB: return dweib_density(x, par, npar, give_log, ms);
 	}
 	fprintf(stderr, "distribution_density: unknown distribution name %s\n", distribution_tostring(name));
 	exit(99);
@@ -88,6 +93,11 @@ char* distribution_toenvstring_density(enum DISTTYPE name, char*  x, char** par,
 	case DBIN: return dbin_toenvstring_density(x, par, npar, give_log);
 	case DGAMMA: return dgamma_toenvstring_density(x, par, npar, give_log);
 	case DNORM: return dnorm_toenvstring_density(x, par, npar, give_log);
+	case DBERN: return dbern_toenvstring_density(x, par, npar, give_log);
+	case DPOIS: return dpois_toenvstring_density(x, par, npar, give_log);
+	case DBETA: return dbeta_toenvstring_density(x, par, npar, give_log);
+	case DUNIF: return dunif_toenvstring_density(x, par, npar, give_log);
+	case DWEIB: return dweib_toenvstring_density(x, par, npar, give_log);
 	}
 	fprintf(stderr, "distribution_density: unknown distribution name %s\n", distribution_tostring(name));
 	exit(99);
@@ -100,101 +110,14 @@ double distribution_random(enum DISTTYPE name, double* par, unsigned int npar, N
 	case DBIN: return dbin_random(par, npar, ms);
 	case DGAMMA: return dgamma_random(par, npar, ms);
 	case DNORM: return dnorm_random(par, npar, ms);
+	case DBERN: return dbern_random(par, npar, ms);
+	case DPOIS: return dpois_random(par, npar, ms);
+	case DBETA: return dbeta_random(par, npar, ms);
+	case DUNIF: return dunif_random(par, npar, ms);
+	case DWEIB: return dweib_random(par, npar, ms);
 	}
 	fprintf(stderr, "distribution_random: unknown distribution name %s\n", distribution_tostring(name));
 	exit(99);
-}
-
-double dbin_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE* ms)
-{
-	double size, prob;
-	assert(par!=NULL && npar>=2);
-	size = par[1];
-	prob = par[0];
-	return dbinom(ms, x, size, prob, give_log);
-}
-
-char* dbin_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
-{
-	char *size, *prob, *buff;
-	unsigned int sz;
-
-	assert(par!=NULL && npar>=2);
-
-	size = par[1];
-	prob = par[0];
-
-	sz = sizeof(char) * (strlen(x) + strlen(size) + strlen(prob) + 40);
-	buff = (char*)GC_MALLOC_ATOMIC(sz);
-	snprintf(buff, sz, "dbinom(state,%s, %s, %s, %d)", x, size, prob, give_log);
-	return buff;
-}
-
-double dbin_random(double* par, unsigned int npar, NMATH_STATE *ms)
-{
-	double size, prob;
-	assert(par!=NULL && npar>=2);
-	size = par[1];
-	prob = par[0];
-	return rbinom(ms, size, prob);
-}
-
-double dgamma_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms)
-{
-	double shape, scale;
-	assert(par!=NULL && npar>=2);
-	shape = par[0];
-	scale = 1.0 / par[1];
-	return dgamma(ms, x, shape, scale, give_log);
-}
-
-char* dgamma_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
-{
-	char *shape, *_scale, *buff;
-	assert(par!=NULL && npar>=2);
-	shape= par[0];
-	_scale = par[1];
-	buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(shape) + strlen(_scale) + 30));
-	sprintf(buff, "dgamma(state, %s, %s, 1.0/(%s), %d)", x, shape, _scale, give_log);
-	return buff;
-}
-
-double dgamma_random(double *par, unsigned int npar, NMATH_STATE *ms)
-{
-	double shape, scale;
-	assert(par!=NULL && npar>=2);
-	shape = par[0];
-	scale = 1.0 / par[1];
-	return rgamma(ms, shape, scale);
-}
-
-double dnorm_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms)
-{
-	double mu, sigma;
-	assert(par!=NULL && npar>=2);
-	mu = par[0];
-	sigma  = 1.0 / sqrt(par[1]);
-	return dnorm(ms, x, mu, sigma, give_log);
-}
-
-char* dnorm_toenvstring_density(char* x, char** par, unsigned int npar, int give_log)
-{
-	char *mu, *_sigma, *buff;
-	assert(par!=NULL && npar>=2);
-	mu= par[0];
-	_sigma= par[1];
-	buff = GC_MALLOC_ATOMIC(sizeof(char) * (strlen(x) + strlen(mu) + strlen(_sigma) + 40));
-	sprintf(buff, "dnorm(state, %s, %s, 1.0/sqrt(%s), %d)", x, mu, _sigma, give_log);
-	return buff;
-}
-
-double dnorm_random(double *par, unsigned int npar, NMATH_STATE *ms)
-{
-	double mu, sigma;
-	assert(par!=NULL && npar>=2);
-	mu = par[0];
-	sigma = 1.0 / sqrt(par[1]);
-	return rnorm(ms, mu, sigma);
 }
 
 /**
@@ -223,7 +146,7 @@ char* distribution_toenvstring_loglikelihood(enum DISTTYPE name, char** x, unsig
 	if( name == DCAT ) return dcat_toenvstring_loglikelihood(x, length, par, npar);
 	if( distribution_isscalar(name) ) return distribution_toenvstring_scalarloglikelihood(name, x[0], par, npar);
 	else {
-		return "AAA";
+		return "BBBB";
 		fprintf(stderr, "distribution_loglikelihood: unknown distribution name %s\n", distribution_tostring(name));
 		exit(99);
 	}
@@ -259,69 +182,5 @@ void distribution_randomsample(enum DISTTYPE name, double *x, unsigned int lengt
 double distribution_scalarrandomsample(enum DISTTYPE name, double *par, unsigned int npar, NMATH_STATE *ms)
 { 
 	return distribution_random(name, par, npar, ms);
-}
-
-double dcat_loglikelihood(double *x, unsigned int length, double* par, unsigned int npar)
-{
-	unsigned int i;
-	unsigned int y;
-	double sump = 0.0;
-	
-	assert(length==1);
-
-	y = (unsigned int)x[0];
-	assert(!( y < 1 || y > npar ));
-
-	for( i = 0 ; i < npar ; i++ ) {
-		double prob = par[i];
-		sump += prob;
-	}
-	return log(par[y-1]) - log(sump);
-}
-
-char* dcat_toenvstring_loglikelihood(char** x, unsigned int length, char** par, unsigned int npar)
-{
-	unsigned int i,l, sumpl;
-	unsigned int y=0;
-	char *sump, *s;
-
-	sscanf(x[0], "%u", &y);	
-	assert(!(y < 1 || y > npar ));
-
-	sumpl = 0;
-	for( i = 0 ; i < npar ; i++ ) sumpl += strlen(par[i]);
-	sump = GC_MALLOC_ATOMIC(sizeof(char)*(sumpl+npar*3));
-	sump[0] = '\0';
-	for( i = 0 ; i < npar-1 ; i++ ){ strcat(sump,"("); strcat(sump, par[i]); strcat(sump,")+");}
-	strcat(sump,"(");
-	strcat(sump,par[i]);
-	strcat(sump,")");
-	
-	l = strlen(par[y-1]+sumpl+20);
-	s = GC_MALLOC_ATOMIC(sizeof(char)*l);
-	sprintf(s, "log(%s)-log(%s)", par[y-1], sump);	
-
-	GC_FREE(sump);
-	return s;
-}
-
-void dcat_randomsample(double *x, unsigned int length, double* par, unsigned int npar, NMATH_STATE *ms)
-{
-	double sump = 0.0;
-	unsigned int i = 0;
-	double p, prob;
-
-	for( i = 0 ; i < npar ; i++ ) {
-		prob = par[i];
-		sump += prob;
-	}
-	p = sump * norm_rand(ms);
-	
-	for( i = npar-1 ; i > 0 ; i-- ) {
-		prob = par[i];
-		sump -= prob;
-		if( sump <= p ) break;
-	}
-	x[0] = (double)i;
 }
 

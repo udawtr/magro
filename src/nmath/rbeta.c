@@ -44,13 +44,13 @@ double rbeta(NMATH_STATE *state, double aa, double bb)
     static double olda = -1.0;
     static double oldb = -1.0;
 
-    if (aa <= 0. || bb <= 0. || (!R_FINITE(aa) && !R_FINITE(bb)))
+    if (aa <= 0. || bb <= 0. || (!isfinite(aa) && !isfinite(bb)))
 	return NAN;
 
-    if (!R_FINITE(aa))
+    if (!isfinite(aa))
     	return 1.0;
 
-    if (!R_FINITE(bb))
+    if (!isfinite(bb))
     	return 0.0;
 
     /* Test if we need new "initializing" */
