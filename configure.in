@@ -39,6 +39,7 @@ AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
 	src/mainapp/Makefile
+	src/mainapp/distributions/Makefile
 	src/nmath/Makefile
 	src/parser_rdata/Makefile
 	src/parser_bugs/Makefile

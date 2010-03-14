@@ -71,27 +71,36 @@ const char* distribution_tostring(enum DISTTYPE name)
 
 double distribution_density(enum DISTTYPE name, double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms)
 {
-	if( name == DBIN ) return dbin_density(x, par, npar, give_log, ms);
-	if( name == DGAMMA ) return dgamma_density(x, par, npar, give_log, ms);
-	if( name == DNORM ) return dnorm_density(x, par, npar, give_log, ms);
+	switch(name)
+	{
+	case DBIN:  return dbin_density(x, par, npar, give_log, ms);
+	case DGAMMA: return dgamma_density(x, par, npar, give_log, ms);
+	case DNORM: return dnorm_density(x, par, npar, give_log, ms);
+	}
 	fprintf(stderr, "distribution_density: unknown distribution name %s\n", distribution_tostring(name));
 	exit(99);
 }
 
 char* distribution_toenvstring_density(enum DISTTYPE name, char*  x, char** par, unsigned int npar, int give_log)
 {
-	if( name == DBIN ) return dbin_toenvstring_density(x, par, npar, give_log);
-	if( name == DGAMMA ) return dgamma_toenvstring_density(x, par, npar, give_log);
-	if( name == DNORM ) return dnorm_toenvstring_density(x, par, npar, give_log);
+	switch(name)
+	{
+	case DBIN: return dbin_toenvstring_density(x, par, npar, give_log);
+	case DGAMMA: return dgamma_toenvstring_density(x, par, npar, give_log);
+	case DNORM: return dnorm_toenvstring_density(x, par, npar, give_log);
+	}
 	fprintf(stderr, "distribution_density: unknown distribution name %s\n", distribution_tostring(name));
 	exit(99);
 }
 
 double distribution_random(enum DISTTYPE name, double* par, unsigned int npar, NMATH_STATE *ms)
 {
-	if( name == DBIN ) return dbin_random(par, npar, ms);
-	if( name == DGAMMA ) return dgamma_random(par, npar, ms);
-	if( name == DNORM ) return dnorm_random(par, npar, ms);
+	switch(name)
+	{
+	case DBIN: return dbin_random(par, npar, ms);
+	case DGAMMA: return dgamma_random(par, npar, ms);
+	case DNORM: return dnorm_random(par, npar, ms);
+	}
 	fprintf(stderr, "distribution_random: unknown distribution name %s\n", distribution_tostring(name));
 	exit(99);
 }

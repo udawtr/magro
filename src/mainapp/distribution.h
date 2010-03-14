@@ -70,20 +70,12 @@ double distribution_density(enum DISTTYPE name, double x, double* par, unsigned 
 double distribution_random(enum DISTTYPE name, double* par, unsigned int npar, NMATH_STATE *ms);
 
 /* density specific density or random function (private use) */
-double dbin_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms);
-double dbin_random(double* par, unsigned int npar, NMATH_STATE *ms);
-double dgamma_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms);
-double dgamma_random(double *par, unsigned int npar, NMATH_STATE *ms);
-double dnorm_density(double x, double* par, unsigned int npar, int give_log, NMATH_STATE *ms);
-double dnorm_random(double *par, unsigned int npar, NMATH_STATE *ms);
-double dcat_loglikelihood(double *x, unsigned int length, double* par, unsigned int npar);
-void dcat_randomsample(double *x, unsigned int length, double* par, unsigned int npar, NMATH_STATE *ms);
+#include "distributions/dbin.h"
+#include "distributions/dgamma.h"
+#include "distributions/dnorm.h"
+#include "distributions/dcat.h"
 
-char* dbin_toenvstring_density(char* x, char** par, unsigned int npar, int give_log);
-char* dgamma_toenvstring_density(char* x, char** par, unsigned int npar, int give_log);
-char* dnorm_toenvstring_density(char* x, char** par, unsigned int npar, int give_log);
 char* distribution_toenvstring_loglikelihood(enum DISTTYPE name, char** x, unsigned int length, char** par, unsigned int npar);
-char* dcat_toenvstring_loglikelihood(char** x, unsigned int length, char** par, unsigned int npar);
 char* distribution_toenvstring_scalarloglikelihood(enum DISTTYPE name, char* x, char** par, unsigned int npar);
 char* distribution_toenvstring_density(enum DISTTYPE name, char*  x, char** par, unsigned int npar, int give_log);
 #endif

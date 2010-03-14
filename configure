@@ -4471,7 +4471,7 @@ fi
 done
 
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/mainapp/Makefile src/nmath/Makefile src/parser_rdata/Makefile src/parser_bugs/Makefile src/clearsilver/Makefile"
+ac_config_files="$ac_config_files Makefile src/Makefile src/mainapp/Makefile src/mainapp/distributions/Makefile src/nmath/Makefile src/parser_rdata/Makefile src/parser_bugs/Makefile src/clearsilver/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -5189,6 +5189,7 @@ do
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
     "src/Makefile") CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
     "src/mainapp/Makefile") CONFIG_FILES="$CONFIG_FILES src/mainapp/Makefile" ;;
+    "src/mainapp/distributions/Makefile") CONFIG_FILES="$CONFIG_FILES src/mainapp/distributions/Makefile" ;;
     "src/nmath/Makefile") CONFIG_FILES="$CONFIG_FILES src/nmath/Makefile" ;;
     "src/parser_rdata/Makefile") CONFIG_FILES="$CONFIG_FILES src/parser_rdata/Makefile" ;;
     "src/parser_bugs/Makefile") CONFIG_FILES="$CONFIG_FILES src/parser_bugs/Makefile" ;;
